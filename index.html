@@ -8,7 +8,6 @@
     <meta name="apple-mobile-web-app-title" content="언른낫자">
     <title>혈액 수치 기록</title>
     
-    <!-- 🌟 앱 아이콘 설정 (깃허브에 icon.png 파일을 올리면 아이폰에서 인식합니다) -->
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="icon" type="image/png" href="icon.png">
     
@@ -78,10 +77,31 @@
         <!-- ==================== 탭 2: 그래프 ==================== -->
         <div id="tab2" class="tab-content space-y-4">
             <section class="bg-white p-5 rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.03)]">
-                <div class="relative mb-5">
+                <div class="relative mb-4">
                     <select id="chartSelector" onchange="updateChart()" class="block w-full appearance-none rounded-xl border border-gray-200 py-3 px-3 text-sm font-bold text-gray-800 bg-gray-50/50 pr-8 m-0"></select>
                     <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
                         <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                    </div>
+                </div>
+
+                <!-- 기간 필터 버튼들 -->
+                <div class="grid grid-cols-5 gap-1 bg-gray-100 p-1 rounded-xl mb-4 text-center">
+                    <button onclick="setPeriod('7d')" id="period_7d" class="py-1.5 text-[11px] font-bold rounded-lg transition bg-white shadow-sm text-gray-800">1주일</button>
+                    <button onclick="setPeriod('1m')" id="period_1m" class="py-1.5 text-[11px] font-bold rounded-lg transition text-gray-500">1개월</button>
+                    <button onclick="setPeriod('6m')" id="period_6m" class="py-1.5 text-[11px] font-bold rounded-lg transition text-gray-500">6개월</button>
+                    <button onclick="setPeriod('1y')" id="period_1y" class="py-1.5 text-[11px] font-bold rounded-lg transition text-gray-500">1년</button>
+                    <button onclick="setPeriod('custom')" id="period_custom" class="py-1.5 text-[11px] font-bold rounded-lg transition text-gray-500">직접</button>
+                </div>
+
+                <!-- 직접지정 달력 영역 (평소엔 숨김) -->
+                <div id="customDateArea" class="hidden grid grid-cols-2 gap-2 mb-4 bg-gray-50 p-3 rounded-xl border border-gray-100">
+                    <div>
+                        <label class="block text-[10px] text-gray-400 mb-1">시작일</label>
+                        <input type="date" id="startDate" onchange="updateChart()" class="w-full p-1.5 text-xs rounded-lg border border-gray-200 bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-gray-400 mb-1">종료일</label>
+                        <input type="date" id="endDate" onchange="updateChart()" class="w-full p-1.5 text-xs rounded-lg border border-gray-200 bg-white">
                     </div>
                 </div>
 
@@ -92,16 +112,16 @@
                 <div class="relative w-full min-h-[250px]">
                     <canvas id="myChart" width="400" height="300"></canvas>
                     <div id="chartEmptyState" class="hidden absolute inset-0 flex items-center justify-center bg-white/90 backdrop-blur-sm rounded-xl z-10 border border-gray-100">
-                        <p class="text-sm font-bold text-gray-400">저장된 기록이 없습니다.</p>
+                        <p class="text-sm font-bold text-gray-400">조건에 해당하는 기록이 없습니다.</p>
                     </div>
                 </div>
                 
-                <div class="flex justify-center items-center gap-4 mt-5 pt-4 border-t border-gray-100">
-                    <div class="flex items-center gap-1.5 text-[10px] text-gray-500">
+                <div class="flex justify-center items-center gap-3 mt-5 pt-4 border-t border-gray-100">
+                    <div class="flex items-center gap-1 text-[10px] text-gray-500">
                         <span class="w-2.5 h-2.5 rounded-sm bg-emerald-100 border border-emerald-200"></span> 정상 범주
                     </div>
-                    <div class="flex items-center gap-1.5 text-[10px] text-gray-500">
-                        <span class="text-yellow-400 text-sm">●</span> 메모 기록
+                    <div class="flex items-center gap-1 text-[10px] text-gray-500">
+                        <span class="text-yellow-400 text-xs">●</span> 메모 기록
                     </div>
                 </div>
             </section>
@@ -122,7 +142,6 @@
                         <input type="file" id="importFile" accept=".json" class="hidden" onchange="importData(event)">
                     </label>
                 </div>
-                <!-- 전체 삭제 버튼 추가 -->
                 <button onclick="deleteAllData()" class="w-full bg-red-50 text-red-600 border border-red-200 font-semibold py-3 rounded-xl text-xs hover:bg-red-100 transition flex justify-center items-center gap-1.5">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                     모든 데이터 전체 삭제
@@ -130,7 +149,13 @@
             </section>
 
             <section class="bg-white p-5 rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.03)]">
-                <h2 class="font-bold text-gray-800 mb-4 text-sm">항목 및 정상 범주 설정</h2>
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="font-bold text-gray-800 text-sm">항목 및 정상 범주 설정</h2>
+                    <!-- [+] 항목 추가 버튼 -->
+                    <button onclick="addCustomItemField()" class="bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-blue-100 transition flex items-center gap-1">
+                        + 항목 추가
+                    </button>
+                </div>
                 
                 <div class="flex text-[10px] font-bold text-gray-400 mb-3 px-1">
                     <div class="flex-1">항목명</div>
@@ -171,8 +196,7 @@
         Chart.defaults.color = "#6b7280";
 
         const FIXED_ITEMS = ["AST", "ALT", "LDH", "Albumin", "T-Bil", "NEUT#", "WBC", "Alp", "Ca15-3"];
-        let customItems = JSON.parse(localStorage.getItem('customItems')) || Array.from({length: 11}, (_, i) => `추가항목 ${i+1}`);
-        let itemNames = [...FIXED_ITEMS, ...customItems];
+        let customItems = JSON.parse(localStorage.getItem('customItems')) || [];
         
         const defaultRanges = {
             0: {min: 13, max: 33, unit: "U/L"},
@@ -186,6 +210,11 @@
         let referenceRanges = JSON.parse(localStorage.getItem('referenceRanges')) || defaultRanges;
         let bloodData = JSON.parse(localStorage.getItem('bloodData')) || [];
         let currentChart = null;
+        let currentPeriod = '7d';
+
+        function getAllItems() {
+            return [...FIXED_ITEMS, ...customItems];
+        }
 
         function renderUI() {
             const dateInput = document.getElementById('recordDate');
@@ -199,27 +228,36 @@
             chartSelector.innerHTML = '';
             settingsContainer.innerHTML = '';
             
-            for(let i=0; i<20; i++) {
-                const isFixed = i < 9;
-                const labelColor = isFixed ? 'text-gray-800 font-bold' : 'text-gray-500 font-medium';
-                const currentName = itemNames[i];
+            const allItems = getAllItems();
+            
+            allItems.forEach((itemName, i) => {
+                const isFixed = i < FIXED_ITEMS.length;
                 const unitText = referenceRanges[i]?.unit ? ` <span class="font-normal text-gray-400">(${referenceRanges[i].unit})</span>` : '';
                 
+                // 1. 기록 탭 입력 필드 (폰트 크기 및 두께 통일)
                 inputContainer.innerHTML += `
                     <div>
-                        <label class="block text-[11px] ${labelColor} truncate mb-1.5 pl-1">${currentName}${unitText}</label>
-                        <input type="number" step="0.01" id="item_${i}" class="block w-full py-2.5 px-3 rounded-xl border border-gray-200 text-sm bg-gray-50/50 focus:border-gray-400 transition placeholder-gray-300 m-0" placeholder="0.00">
+                        <label class="block text-[11px] font-bold text-gray-800 truncate mb-1.5 pl-1">${itemName}${unitText}</label>
+                        <input type="number" step="0.01" id="item_${i}" class="block w-full py-2.5 px-3 rounded-xl border border-gray-200 text-sm bg-gray-50/50 focus:border-gray-400 transition placeholder-gray-300 m-0 font-bold text-gray-800" placeholder="0.00">
                     </div>
                 `;
-                chartSelector.innerHTML += `<option value="${i}">${currentName}</option>`;
+                
+                // 2. 그래프 선택 셀렉트박스
+                chartSelector.innerHTML += `<option value="${i}">${itemName}</option>`;
+            });
 
+            // 3. 설정 탭 리스트 (고정항목 + 추가항목)
+            allItems.forEach((itemName, i) => {
+                const isFixed = i < FIXED_ITEMS.length;
                 const minVal = referenceRanges[i]?.min !== undefined ? referenceRanges[i].min : '';
                 const maxVal = referenceRanges[i]?.max !== undefined ? referenceRanges[i].max : '';
                 const unitVal = referenceRanges[i]?.unit || '';
                 
                 let nameInputHTML = isFixed 
-                    ? `<span class="flex-1 text-[13px] font-bold text-gray-700 truncate pl-1">${currentName}</span>`
-                    : `<input type="text" id="customName_${i-9}" value="${customItems[i-9]}" class="flex-1 w-20 py-2 px-2 rounded-lg border border-gray-200 text-xs bg-gray-50/50 focus:border-gray-400 transition text-gray-700 m-0">`;
+                    ? `<span class="flex-1 text-[13px] font-bold text-gray-700 truncate pl-1">${itemName}</span>`
+                    : `<input type="text" id="customName_${i}" value="${itemName}" class="flex-1 w-20 py-2 px-2 rounded-lg border border-gray-200 text-xs bg-gray-50/50 focus:border-gray-400 transition text-gray-700 m-0 font-bold">`;
+
+                let deleteBtnHTML = isFixed ? '' : `<button onclick="removeCustomItem(${i})" class="text-gray-400 hover:text-red-500 p-1 font-bold text-xs">✕</button>`;
 
                 settingsContainer.innerHTML += `
                     <div class="flex items-center space-x-1.5 mb-2">
@@ -227,20 +265,50 @@
                         <input type="text" id="unit_${i}" value="${unitVal}" placeholder="단위" class="w-11 py-2 px-1 rounded-lg border border-gray-200 text-xs text-center bg-gray-50/50 focus:border-gray-400 text-gray-600 m-0">
                         <input type="number" step="0.01" id="min_${i}" value="${minVal}" placeholder="최소" class="w-12 py-2 px-1 rounded-lg border border-gray-200 text-xs text-center bg-gray-50/50 focus:border-gray-400 text-gray-600 m-0">
                         <input type="number" step="0.01" id="max_${i}" value="${maxVal}" placeholder="최대" class="w-12 py-2 px-1 rounded-lg border border-gray-200 text-xs text-center bg-gray-50/50 focus:border-gray-400 text-gray-600 m-0">
+                        ${deleteBtnHTML}
                     </div>
                 `;
-            }
+            });
+        }
+
+        function addCustomItemField() {
+            customItems.push(`추가항목 ${customItems.length + 1}`);
+            renderUI();
+        }
+
+        function removeCustomItem(index) {
+            const customIdx = index - FIXED_ITEMS.length;
+            customItems.splice(customIdx, 1);
+            
+            // 데이터 인덱스 재정렬 처리
+            bloodData = bloodData.map(record => {
+                const newValues = {};
+                for (let key in record.values) {
+                    let k = parseInt(key);
+                    if (k < index) newValues[k] = record.values[k];
+                    else if (k > index) newValues[k - 1] = record.values[k];
+                }
+                return { ...record, values: newValues };
+            });
+            localStorage.setItem('bloodData', JSON.stringify(bloodData));
+            renderUI();
         }
 
         function saveSettings() {
-            for(let i=0; i<11; i++) {
-                const inputVal = document.getElementById(`customName_${i}`).value.trim();
-                customItems[i] = inputVal !== "" ? inputVal : `추가항목 ${i+1}`;
-            }
+            const allItems = getAllItems();
+            let newCustomItems = [];
+            
+            allItems.forEach((itemName, i) => {
+                if(i >= FIXED_ITEMS.length) {
+                    const inputEl = document.getElementById(`customName_${i}`);
+                    if(inputEl) newCustomItems.push(inputEl.value.trim() || `추가항목 ${i}`);
+                }
+            });
+            customItems = newCustomItems;
             localStorage.setItem('customItems', JSON.stringify(customItems));
-            itemNames = [...FIXED_ITEMS, ...customItems];
 
-            for(let i=0; i<20; i++) {
+            const finalAllItems = getAllItems();
+            for(let i=0; i<finalAllItems.length; i++) {
                 const minVal = parseFloat(document.getElementById(`min_${i}`).value);
                 const maxVal = parseFloat(document.getElementById(`max_${i}`).value);
                 const unitVal = document.getElementById(`unit_${i}`).value.trim();
@@ -296,7 +364,8 @@
             let record = { date: dateStr, memo: memoStr, values: {} };
             let hasData = false;
             
-            for(let i=0; i<20; i++) {
+            const allItems = getAllItems();
+            for(let i=0; i<allItems.length; i++) {
                 const val = document.getElementById(`item_${i}`).value;
                 if(val !== "") {
                     record.values[i] = parseFloat(val);
@@ -319,7 +388,7 @@
             setTimeout(() => {
                 btn.innerText = originalText;
                 btn.classList.replace('bg-emerald-500', 'bg-gray-900');
-                for(let i=0; i<20; i++) document.getElementById(`item_${i}`).value = '';
+                for(let i=0; i<allItems.length; i++) document.getElementById(`item_${i}`).value = '';
                 document.getElementById('recordMemo').value = '';
                 switchTab(2);
             }, 800);
@@ -337,23 +406,42 @@
             }
         }
 
-        function updateTrendSummary(selectedItemIndex, itemName, unit) {
+        function setPeriod(period) {
+            currentPeriod = period;
+            ['7d', '1m', '6m', '1y', 'custom'].forEach(p => {
+                const btn = document.getElementById(`period_${p}`);
+                if(p === period) {
+                    btn.className = "py-1.5 text-[11px] font-bold rounded-lg transition bg-white shadow-sm text-gray-800";
+                } else {
+                    btn.className = "py-1.5 text-[11px] font-bold rounded-lg transition text-gray-500";
+                }
+            });
+
+            const customArea = document.getElementById('customDateArea');
+            if(period === 'custom') {
+                customArea.classList.remove('hidden');
+            } else {
+                customArea.classList.add('hidden');
+            }
+            updateChart();
+        }
+
+        function updateTrendSummary(selectedItemIndex, itemName, unit, filteredHistory) {
             const summaryEl = document.getElementById('trendSummary');
-            const history = bloodData.filter(d => d.values[selectedItemIndex] !== undefined);
             
-            if(history.length === 0) {
-                summaryEl.innerHTML = `<div class="text-xs text-gray-500">기록이 없습니다.</div>`;
+            if(filteredHistory.length === 0) {
+                summaryEl.innerHTML = `<div class="text-xs text-gray-500">선택한 기간 내 기록이 없습니다.</div>`;
                 return;
             }
 
-            const current = history[history.length - 1];
+            const current = filteredHistory[filteredHistory.length - 1];
             const currentVal = current.values[selectedItemIndex];
             const date = current.date.substring(5);
             
             let trendHtml = `<span class="text-gray-300 text-xs ml-2 font-light">-</span>`;
             
-            if(history.length >= 2) {
-                const previousVal = history[history.length - 2].values[selectedItemIndex];
+            if(filteredHistory.length >= 2) {
+                const previousVal = filteredHistory[filteredHistory.length - 2].values[selectedItemIndex];
                 const diff = (currentVal - previousVal).toFixed(2);
                 
                 if(diff > 0) {
@@ -381,12 +469,32 @@
             const selector = document.getElementById('chartSelector');
             if(!selector.value) return;
 
-            const selectedItemIndex = selector.value;
-            const itemName = itemNames[selectedItemIndex];
+            const selectedItemIndex = parseInt(selector.value);
+            const allItems = getAllItems();
+            const itemName = allItems[selectedItemIndex];
             const range = referenceRanges[selectedItemIndex];
             const unit = range?.unit || '';
 
-            updateTrendSummary(selectedItemIndex, itemName, unit);
+            // 기간 필터 적용
+            let filteredHistory = bloodData.filter(d => d.values[selectedItemIndex] !== undefined);
+            const now = new Date();
+
+            if (currentPeriod !== 'custom') {
+                let startDate = new Date();
+                if (currentPeriod === '7d') startDate.setDate(now.getDate() - 7);
+                else if (currentPeriod === '1m') startDate.setMonth(now.getMonth() - 1);
+                else if (currentPeriod === '6m') startDate.setMonth(now.getMonth() - 6);
+                else if (currentPeriod === '1y') startDate.setFullYear(now.getFullYear() - 1);
+
+                filteredHistory = filteredHistory.filter(d => new Date(d.date) >= startDate);
+            } else {
+                const startInput = document.getElementById('startDate').value;
+                const endInput = document.getElementById('endDate').value;
+                if(startInput) filteredHistory = filteredHistory.filter(d => d.date >= startInput);
+                if(endInput) filteredHistory = filteredHistory.filter(d => d.date <= endInput);
+            }
+
+            updateTrendSummary(selectedItemIndex, itemName, unit, filteredHistory);
 
             const chartLabels = [];
             const chartData = [];
@@ -396,26 +504,22 @@
             const pointRadii = [];
             const pointMemos = [];
 
-            bloodData.forEach(record => {
-                if(record.values[selectedItemIndex] !== undefined) {
-                    chartLabels.push(record.date.substring(5).replace('-','/')); 
-                    const val = record.values[selectedItemIndex];
-                    chartData.push(val);
-                    pointMemos.push(record.memo || '');
-                    
-                    // 메모가 있을 경우 (크기 2배인 노란색 동그라미)
-                    if(record.memo) {
-                        pointStyles.push('circle'); // 동그라미로 변경
-                        pointRadii.push(10);        // 기본 크기(5)의 2배
-                        pointColors.push('rgb(250, 204, 21)'); // 노란색
-                        pointBorderColors.push('#fff'); 
-                    } else {
-                        // 메모가 없을 경우 (항상 파란색 동그라미)
-                        pointStyles.push('circle');
-                        pointRadii.push(5);
-                        pointColors.push('rgb(59, 130, 246)'); // 파란색 (위험수치 관련 붉은색 조건 제거됨)
-                        pointBorderColors.push('#fff');
-                    }
+            filteredHistory.forEach(record => {
+                chartLabels.push(record.date.substring(5).replace('-','/')); 
+                const val = record.values[selectedItemIndex];
+                chartData.push(val);
+                pointMemos.push(record.memo || '');
+                
+                if(record.memo) {
+                    pointStyles.push('circle'); 
+                    pointRadii.push(10);        
+                    pointColors.push('rgb(250, 204, 21)'); 
+                    pointBorderColors.push('#fff'); 
+                } else {
+                    pointStyles.push('circle');
+                    pointRadii.push(5);
+                    pointColors.push('rgb(59, 130, 246)'); 
+                    pointBorderColors.push('#fff');
                 }
             });
 
@@ -457,13 +561,14 @@
                         pointStyle: pointStyles,
                         pointRadius: pointRadii,
                         pointHoverRadius: 14,
+                        pointHitRadius: 30,
                         tension: 0.3
                     }]
                 },
                 options: {
                     responsive: true,
                     layout: { padding: { top: 15, bottom: 15, left: 10, right: 10 } },
-                    interaction: { mode: 'index', intersect: false },
+                    interaction: { mode: 'nearest', intersect: true }, 
                     plugins: {
                         legend: { display: false },
                         annotation: { annotations: annotationConfig },
@@ -516,22 +621,25 @@
             try {
                 const worker = await Tesseract.createWorker('eng');
                 let foundAny = false;
+                const allItems = getAllItems();
 
                 for (let i = 0; i < files.length; i++) {
                     statusText.innerHTML = `⏳ 사진 스캔 중... (${i + 1}/${files.length}장)`;
                     const ret = await worker.recognize(files[i]);
                     const upperText = ret.data.text.toUpperCase(); 
                     
-                    itemNames.forEach((name, index) => {
+                    allItems.forEach((name, index) => {
                         if (name.includes("추가항목")) return; 
                         const safeName = name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&').toUpperCase();
                         const match = upperText.match(new RegExp(`${safeName}\\s*[:=\\-]?\\s*(\\d+\\.?\\d*)`, 'i'));
                         if (match && match[1]) {
                             const inputEl = document.getElementById(`item_${index}`);
-                            inputEl.value = match[1];
-                            inputEl.classList.add('bg-blue-50', 'border-blue-300');
-                            setTimeout(() => inputEl.classList.remove('bg-blue-50', 'border-blue-300'), 2500);
-                            foundAny = true;
+                            if(inputEl) {
+                                inputEl.value = match[1];
+                                inputEl.classList.add('bg-blue-50', 'border-blue-300');
+                                setTimeout(() => inputEl.classList.remove('bg-blue-50', 'border-blue-300'), 2500);
+                                foundAny = true;
+                            }
                         }
                     });
                 }
