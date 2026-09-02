@@ -7,7 +7,6 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>혈액 수치 기록</title>
     
-    <!-- 세련된 한국어 폰트: Pretendard -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -22,36 +21,33 @@
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* 스크롤바 숨기기 (더 깔끔한 UI) */
         ::-webkit-scrollbar { display: none; }
-        
-        /* 입력창 포커스 시 기본 테두리 제거 */
         input:focus, select:focus { outline: none; box-shadow: none; }
     </style>
 </head>
-<!-- 배경색을 iOS 기본 배경색상(#f2f2f7)과 유사하게 변경 -->
 <body class="bg-[#f2f2f7] text-gray-900 h-screen flex flex-col overflow-hidden tracking-tight">
 
-    <!-- 미니멀한 헤더 (투명도 + 블러 처리로 iOS 감성 추가) -->
     <header class="bg-white/80 backdrop-blur-md border-b border-gray-200/60 p-4 text-center flex-none z-10 sticky top-0">
         <h1 class="text-[17px] font-bold text-gray-800" id="headerTitle">검사 결과 기록</h1>
     </header>
 
-    <main class="flex-1 overflow-y-auto p-4 pb-24">
+    <!-- 메인 컨텐츠 영역 (하단 탭과 겹치지 않도록 자연스러운 flex 구조 적용) -->
+    <main class="flex-1 overflow-y-auto p-4">
         
         <!-- ==================== 탭 1: 기록 및 OCR ==================== -->
         <div id="tab1" class="tab-content active space-y-5">
             
             <section class="bg-white p-5 rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.03)]">
                 <div class="flex items-center justify-between mb-3">
-                    <h2 class="font-bold text-sm text-gray-800">📷 사진으로 자동 입력</h2>
+                    <h2 class="font-bold text-sm text-gray-800">📷 사진으로 자동 입력 (여러 장 가능)</h2>
                 </div>
                 <label class="flex flex-col items-center justify-center w-full h-14 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition bg-gray-50/50">
                     <div class="flex items-center space-x-2">
                         <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                         <span class="text-sm font-medium text-gray-600">결과지 사진 업로드</span>
                     </div>
-                    <input type="file" id="imageInput" accept="image/*" class="hidden">
+                    <!-- multiple 속성 추가로 여러 장 선택 가능 -->
+                    <input type="file" id="imageInput" accept="image/*" multiple class="hidden">
                 </label>
                 <p id="ocrStatus" class="text-[11px] text-gray-500 mt-2 text-center">결과지 사진을 올리면 수치를 자동으로 찾아냅니다.</p>
             </section>
@@ -60,11 +56,12 @@
                 <div class="mb-5 space-y-3">
                     <div>
                         <label class="block text-xs font-semibold text-gray-500 mb-1">검사 날짜</label>
-                        <input type="date" id="recordDate" class="w-full rounded-xl border border-gray-200 p-3 text-sm bg-gray-50/50 focus:border-gray-400 transition">
+                        <!-- iOS Safari 레이아웃 붕괴 방지용 클래스 추가 (appearance-none, text-left, h-12) -->
+                        <input type="date" id="recordDate" class="block w-full h-12 appearance-none rounded-xl border border-gray-200 px-3 text-sm bg-gray-50/50 focus:border-gray-400 transition text-left text-gray-800">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-gray-500 mb-1">상태 메모 (선택)</label>
-                        <input type="text" id="recordMemo" placeholder="예: 1차 항암 후 3일차" class="w-full rounded-xl border border-gray-200 p-3 text-sm bg-gray-50/50 focus:border-gray-400 transition placeholder-gray-300">
+                        <input type="text" id="recordMemo" placeholder="예: 1차 항암 후 3일차" class="block w-full h-12 appearance-none rounded-xl border border-gray-200 px-3 text-sm bg-gray-50/50 focus:border-gray-400 transition placeholder-gray-300">
                     </div>
                 </div>
                 
@@ -75,7 +72,6 @@
                     </div>
                 </div>
 
-                <!-- 진한 회색(검정에 가까운) 메인 버튼으로 모던함 강조 -->
                 <button onclick="saveData()" class="w-full bg-gray-900 text-white font-bold py-3.5 rounded-xl hover:bg-gray-800 transition shadow-sm text-sm active:scale-[0.98]">
                     기록 저장하기
                 </button>
@@ -86,22 +82,24 @@
         <div id="tab2" class="tab-content space-y-4">
             <section class="bg-white p-5 rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.03)]">
                 <div class="relative mb-5">
-                    <select id="chartSelector" onchange="updateChart()" class="block w-full appearance-none rounded-xl border border-gray-200 p-3 text-sm font-bold text-gray-800 bg-gray-50/50 pr-8">
+                    <select id="chartSelector" onchange="updateChart()" class="block w-full h-12 appearance-none rounded-xl border border-gray-200 px-3 text-sm font-bold text-gray-800 bg-gray-50/50 pr-8">
                         <!-- JS 생성 -->
                     </select>
-                    <!-- 커스텀 화살표 아이콘 -->
                     <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
                         <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
                     </div>
                 </div>
 
-                <!-- 증감 요약 카드 -->
                 <div id="trendSummary" class="bg-[#f8f8fb] p-4 rounded-xl mb-6 flex justify-between items-center border border-gray-100/50">
                     <div class="text-xs text-gray-500">기록이 없습니다.</div>
                 </div>
 
-                <div class="relative w-full">
+                <div class="relative w-full min-h-[250px]">
                     <canvas id="myChart" width="400" height="300"></canvas>
+                    <!-- 그래프 빈 화면일 때 안내 문구 오버레이 -->
+                    <div id="chartEmptyState" class="hidden absolute inset-0 flex items-center justify-center bg-white/90 backdrop-blur-sm rounded-xl z-10 border border-gray-100">
+                        <p class="text-sm font-bold text-gray-400">저장된 기록이 없습니다.</p>
+                    </div>
                 </div>
                 
                 <div class="flex justify-center items-center gap-3 mt-5 pt-4 border-t border-gray-100">
@@ -140,7 +138,8 @@
                     <div class="w-12 text-center ml-1">최대</div>
                 </div>
 
-                <div id="settingsFields" class="space-y-3 mb-6 max-h-96 overflow-y-auto pb-4">
+                <!-- 이중 스크롤 방지를 위해 max-h-96, overflow-y-auto 클래스 제거 -->
+                <div id="settingsFields" class="space-y-3 mb-6 pb-2">
                     <!-- JS 생성 -->
                 </div>
 
@@ -152,9 +151,9 @@
 
     </main>
 
-    <!-- 하단 네비게이션 (iOS Dock 스타일) -->
-    <nav class="bg-white/90 backdrop-blur-lg border-t border-gray-200/60 flex-none pb-safe absolute bottom-0 w-full z-20">
-        <div class="flex justify-around items-center h-16 px-2">
+    <!-- 하단 네비게이션 (absolute 제거, flex-none으로 자연스럽게 하단 고정) -->
+    <nav class="bg-white/95 backdrop-blur-lg border-t border-gray-200/60 flex-none pb-safe w-full z-20 shadow-[0_-2px_10px_rgba(0,0,0,0.02)]">
+        <div class="flex justify-around items-center h-[60px] px-2">
             <button onclick="switchTab(1)" id="btnTab1" class="flex flex-col items-center justify-center w-full h-full text-gray-900 transition">
                 <svg class="w-[22px] h-[22px] mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                 <span class="text-[10px] font-semibold">기록</span>
@@ -171,7 +170,6 @@
     </nav>
 
     <script>
-        // Chart.js 전역 폰트 설정 (그래프 내부 글씨도 세련되게)
         Chart.defaults.font.family = "'Pretendard', sans-serif";
         Chart.defaults.color = "#6b7280";
 
@@ -213,7 +211,7 @@
                 inputContainer.innerHTML += `
                     <div>
                         <label class="block text-[11px] ${labelColor} truncate mb-1.5 pl-1">${currentName}${unitText}</label>
-                        <input type="number" step="0.01" id="item_${i}" class="block w-full rounded-xl border border-gray-200 p-2.5 text-sm bg-gray-50/50 focus:border-gray-400 transition placeholder-gray-300" placeholder="0.00">
+                        <input type="number" step="0.01" id="item_${i}" class="block w-full h-11 rounded-xl border border-gray-200 px-2.5 text-sm bg-gray-50/50 focus:border-gray-400 transition placeholder-gray-300" placeholder="0.00">
                     </div>
                 `;
                 
@@ -225,14 +223,14 @@
                 
                 let nameInputHTML = isFixed 
                     ? `<span class="flex-1 text-[13px] font-bold text-gray-700 truncate pl-1">${currentName}</span>`
-                    : `<input type="text" id="customName_${i-9}" value="${customItems[i-9]}" class="flex-1 w-20 rounded-lg border border-gray-200 p-1.5 text-xs bg-gray-50/50 focus:border-gray-400 transition text-gray-700">`;
+                    : `<input type="text" id="customName_${i-9}" value="${customItems[i-9]}" class="flex-1 w-20 h-10 rounded-lg border border-gray-200 px-2 text-xs bg-gray-50/50 focus:border-gray-400 transition text-gray-700">`;
 
                 settingsContainer.innerHTML += `
                     <div class="flex items-center space-x-1.5 mb-2">
                         ${nameInputHTML}
-                        <input type="text" id="unit_${i}" value="${unitVal}" placeholder="단위" class="w-11 rounded-lg border border-gray-200 p-1.5 text-xs text-center bg-gray-50/50 focus:border-gray-400 text-gray-600">
-                        <input type="number" step="0.01" id="min_${i}" value="${minVal}" placeholder="최소" class="w-12 rounded-lg border border-gray-200 p-1.5 text-xs text-center bg-gray-50/50 focus:border-gray-400 text-gray-600">
-                        <input type="number" step="0.01" id="max_${i}" value="${maxVal}" placeholder="최대" class="w-12 rounded-lg border border-gray-200 p-1.5 text-xs text-center bg-gray-50/50 focus:border-gray-400 text-gray-600">
+                        <input type="text" id="unit_${i}" value="${unitVal}" placeholder="단위" class="w-11 h-10 rounded-lg border border-gray-200 px-1 text-xs text-center bg-gray-50/50 focus:border-gray-400 text-gray-600">
+                        <input type="number" step="0.01" id="min_${i}" value="${minVal}" placeholder="최소" class="w-12 h-10 rounded-lg border border-gray-200 px-1 text-xs text-center bg-gray-50/50 focus:border-gray-400 text-gray-600">
+                        <input type="number" step="0.01" id="max_${i}" value="${maxVal}" placeholder="최대" class="w-12 h-10 rounded-lg border border-gray-200 px-1 text-xs text-center bg-gray-50/50 focus:border-gray-400 text-gray-600">
                     </div>
                 `;
             }
@@ -292,7 +290,6 @@
             });
 
             if(tabIndex === 2) updateChart();
-            // 스크롤 상단으로 이동
             document.querySelector('main').scrollTo(0,0);
         }
 
@@ -320,7 +317,6 @@
 
             localStorage.setItem('bloodData', JSON.stringify(bloodData));
             
-            // 저장 완료 피드백 (모던하게)
             const btn = document.querySelector('button[onclick="saveData()"]');
             const originalText = btn.innerText;
             btn.innerText = "✓ 저장 완료";
@@ -396,7 +392,7 @@
 
             bloodData.forEach(record => {
                 if(record.values[selectedItemIndex] !== undefined) {
-                    chartLabels.push(record.date.substring(5).replace('-','/')); // 디자인적으로 슬래시가 깔끔함
+                    chartLabels.push(record.date.substring(5).replace('-','/')); 
                     const val = record.values[selectedItemIndex];
                     chartData.push(val);
                     pointMemos.push(record.memo || '');
@@ -411,11 +407,18 @@
                     } else {
                         pointStyles.push('circle');
                         pointRadii.push(5);
-                        pointColors.push(isDanger ? 'rgb(239, 68, 68)' : 'rgb(55, 65, 81)'); // 정상일 때 차분한 다크그레이
+                        pointColors.push(isDanger ? 'rgb(239, 68, 68)' : 'rgb(55, 65, 81)');
                         pointBorderColors.push('#fff');
                     }
                 }
             });
+
+            const emptyStateEl = document.getElementById('chartEmptyState');
+            if (chartData.length === 0) {
+                emptyStateEl.classList.remove('hidden');
+            } else {
+                emptyStateEl.classList.add('hidden');
+            }
 
             if(currentChart) currentChart.destroy();
 
@@ -440,7 +443,7 @@
                     datasets: [{
                         label: itemName,
                         data: chartData,
-                        borderColor: 'rgb(229, 231, 235)', // 선 색상을 아주 연한 회색으로 (점만 강조)
+                        borderColor: 'rgb(229, 231, 235)',
                         borderWidth: 2,
                         pointBackgroundColor: pointColors,
                         pointBorderColor: pointBorderColors,
@@ -448,7 +451,7 @@
                         pointStyle: pointStyles,
                         pointRadius: pointRadii,
                         pointHoverRadius: 14,
-                        tension: 0.3 // 곡선을 조금 더 부드럽게
+                        tension: 0.3
                     }]
                 },
                 options: {
@@ -496,35 +499,49 @@
             });
         }
 
+        // 다중 파일 OCR 처리 로직
         document.getElementById('imageInput').addEventListener('change', async function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
+            const files = e.target.files;
+            if (!files || files.length === 0) return;
+            
             const statusText = document.getElementById('ocrStatus');
-            statusText.innerHTML = "⏳ 사진을 스캔 중입니다...";
-            statusText.className = "text-[11px] font-bold text-gray-500 mt-2 text-center";
+            statusText.innerHTML = `⏳ 총 ${files.length}장의 사진을 스캔 준비 중입니다...`;
+            statusText.className = "text-[11px] font-bold text-blue-500 mt-2 text-center";
+            
             try {
                 const worker = await Tesseract.createWorker('eng');
-                const ret = await worker.recognize(file);
-                const text = ret.data.text;
-                await worker.terminate();
-                statusText.innerHTML = "✨ 스캔 완료! 빈칸의 수치를 확인해주세요 / 정수정 화이팅!!.";
-                statusText.className = "text-[11px] font-bold text-gray-900 mt-2 text-center";
+                let foundAny = false;
+
+                for (let i = 0; i < files.length; i++) {
+                    statusText.innerHTML = `⏳ 사진 스캔 중... (${i + 1}/${files.length}장)`;
+                    const ret = await worker.recognize(files[i]);
+                    const upperText = ret.data.text.toUpperCase(); 
+                    
+                    itemNames.forEach((name, index) => {
+                        if (name.includes("추가항목")) return; 
+                        const safeName = name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&').toUpperCase();
+                        const match = upperText.match(new RegExp(`${safeName}\\s*[:=\\-]?\\s*(\\d+\\.?\\d*)`, 'i'));
+                        if (match && match[1]) {
+                            const inputEl = document.getElementById(`item_${index}`);
+                            inputEl.value = match[1];
+                            inputEl.classList.add('bg-blue-50', 'border-blue-300');
+                            setTimeout(() => inputEl.classList.remove('bg-blue-50', 'border-blue-300'), 2500);
+                            foundAny = true;
+                        }
+                    });
+                }
                 
-                const upperText = text.toUpperCase(); 
-                itemNames.forEach((name, index) => {
-                    if (name.includes("추가항목")) return; 
-                    const safeName = name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&').toUpperCase();
-                    const match = upperText.match(new RegExp(`${safeName}\\s*[:=\\-]?\\s*(\\d+\\.?\\d*)`, 'i'));
-                    if (match && match[1]) {
-                        const inputEl = document.getElementById(`item_${index}`);
-                        inputEl.value = match[1];
-                        // 트렌디한 스캔 하이라이트 효과
-                        inputEl.classList.add('bg-blue-50', 'border-blue-300');
-                        setTimeout(() => inputEl.classList.remove('bg-blue-50', 'border-blue-300'), 2500);
-                    }
-                });
+                await worker.terminate();
+
+                if (foundAny) {
+                    statusText.innerHTML = "✨ 스캔 완료! 빈칸에 들어간 수치를 확인해주세요.";
+                    statusText.className = "text-[11px] font-bold text-gray-900 mt-2 text-center";
+                } else {
+                    statusText.innerHTML = "⚠️ 사진에서 수치를 찾지 못했습니다. 직접 기입해주세요.";
+                    statusText.className = "text-[11px] font-bold text-red-500 mt-2 text-center";
+                }
             } catch (err) {
-                statusText.innerHTML = "⚠️ 스캔에 실패했습니다. 직접 기입해주세요.";
+                statusText.innerHTML = "❌ 스캔 중 오류가 발생했습니다. 직접 기입해주세요.";
                 statusText.className = "text-[11px] font-bold text-red-500 mt-2 text-center";
             }
         });
