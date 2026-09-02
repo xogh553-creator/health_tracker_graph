@@ -5,10 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="언른낫자">
     <title>혈액 수치 기록</title>
     
-    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <!-- 🌟 앱 아이콘 설정 (깃허브에 icon.png 파일을 올리면 아이폰에서 인식합니다) -->
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="icon" type="image/png" href="icon.png">
     
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@2.1.2/dist/chartjs-plugin-annotation.min.js"></script>
@@ -16,17 +20,14 @@
 
     <style>
         body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif; }
-        /* 하단 탭 여백 문제 해결: 기본 여백을 조금 더 주고 safe-area를 더함 */
         .pb-safe { padding-bottom: calc(env(safe-area-inset-bottom) + 8px); }
         .tab-content { display: none; animation: fadeIn 0.25s ease-out; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        
         ::-webkit-scrollbar { display: none; }
         input:focus, select:focus { outline: none; box-shadow: none; }
     </style>
 </head>
-<!-- 아이폰 사파리 하단바 버그 해결을 위해 h-screen 대신 h-[100dvh] 사용 -->
 <body class="bg-[#f2f2f7] text-gray-900 h-[100dvh] flex flex-col overflow-hidden tracking-tight">
 
     <header class="bg-white/80 backdrop-blur-md border-b border-gray-200/60 p-4 text-center flex-none z-10 sticky top-0">
@@ -37,7 +38,6 @@
         
         <!-- ==================== 탭 1: 기록 및 OCR ==================== -->
         <div id="tab1" class="tab-content active space-y-5">
-            
             <section class="bg-white p-5 rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.03)]">
                 <div class="flex items-center justify-between mb-3">
                     <h2 class="font-bold text-sm text-gray-800">📷 사진으로 자동 입력 (여러 장 가능)</h2>
@@ -56,21 +56,17 @@
                 <div class="mb-5 space-y-3">
                     <div>
                         <label class="block text-xs font-semibold text-gray-500 mb-1">검사 날짜</label>
-                        <!-- iOS 사파리 텍스트 위로 쏠림 현상 해결: h-12 제거하고 py-3 적용 -->
                         <input type="date" id="recordDate" class="block w-full appearance-none rounded-xl border border-gray-200 py-3 px-3 text-sm bg-gray-50/50 focus:border-gray-400 transition text-left text-gray-800 m-0">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-gray-500 mb-1">상태 메모 (선택)</label>
-                        <!-- 일관성을 위해 메모칸도 py-3으로 통일 -->
                         <input type="text" id="recordMemo" placeholder="예: 1차 항암 후 3일차" class="block w-full appearance-none rounded-xl border border-gray-200 py-3 px-3 text-sm bg-gray-50/50 focus:border-gray-400 transition placeholder-gray-300 m-0">
                     </div>
                 </div>
                 
                 <div class="border-t border-gray-100 pt-5 mb-5">
                     <h3 class="text-xs font-semibold text-gray-500 mb-3">수치 직접 입력</h3>
-                    <div id="inputFields" class="grid grid-cols-2 gap-x-4 gap-y-3">
-                        <!-- JS 생성 -->
-                    </div>
+                    <div id="inputFields" class="grid grid-cols-2 gap-x-4 gap-y-3"></div>
                 </div>
 
                 <button onclick="saveData()" class="w-full bg-gray-900 text-white font-bold py-3.5 rounded-xl hover:bg-gray-800 transition shadow-sm text-sm active:scale-[0.98]">
@@ -83,10 +79,7 @@
         <div id="tab2" class="tab-content space-y-4">
             <section class="bg-white p-5 rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.03)]">
                 <div class="relative mb-5">
-                    <!-- select도 py-3으로 통일하여 안정감 확보 -->
-                    <select id="chartSelector" onchange="updateChart()" class="block w-full appearance-none rounded-xl border border-gray-200 py-3 px-3 text-sm font-bold text-gray-800 bg-gray-50/50 pr-8 m-0">
-                        <!-- JS 생성 -->
-                    </select>
+                    <select id="chartSelector" onchange="updateChart()" class="block w-full appearance-none rounded-xl border border-gray-200 py-3 px-3 text-sm font-bold text-gray-800 bg-gray-50/50 pr-8 m-0"></select>
                     <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
                         <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
                     </div>
@@ -103,12 +96,12 @@
                     </div>
                 </div>
                 
-                <div class="flex justify-center items-center gap-3 mt-5 pt-4 border-t border-gray-100">
-                    <div class="flex items-center gap-1 text-[10px] text-gray-500">
+                <div class="flex justify-center items-center gap-4 mt-5 pt-4 border-t border-gray-100">
+                    <div class="flex items-center gap-1.5 text-[10px] text-gray-500">
                         <span class="w-2.5 h-2.5 rounded-sm bg-emerald-100 border border-emerald-200"></span> 정상 범주
                     </div>
-                    <div class="flex items-center gap-1 text-[10px] text-gray-500">
-                        <span class="text-yellow-400 text-xs">★</span> 메모 기록
+                    <div class="flex items-center gap-1.5 text-[10px] text-gray-500">
+                        <span class="text-yellow-400 text-sm">●</span> 메모 기록
                     </div>
                 </div>
             </section>
@@ -117,16 +110,23 @@
         <!-- ==================== 탭 3: 설정 ==================== -->
         <div id="tab3" class="tab-content space-y-4">
             
-            <section class="bg-white p-5 rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex gap-3">
-                <button onclick="exportData()" class="flex-1 bg-gray-50 text-gray-700 border border-gray-200 font-semibold py-3 rounded-xl text-xs hover:bg-gray-100 transition flex justify-center items-center gap-1.5">
-                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                    데이터 백업
+            <section class="bg-white p-5 rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex flex-col gap-3">
+                <div class="flex gap-3">
+                    <button onclick="exportData()" class="flex-1 bg-gray-50 text-gray-700 border border-gray-200 font-semibold py-3 rounded-xl text-xs hover:bg-gray-100 transition flex justify-center items-center gap-1.5">
+                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        데이터 백업
+                    </button>
+                    <label class="flex-1 bg-gray-50 text-gray-700 border border-gray-200 font-semibold py-3 rounded-xl text-xs hover:bg-gray-100 transition flex justify-center items-center gap-1.5 cursor-pointer">
+                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                        데이터 복원
+                        <input type="file" id="importFile" accept=".json" class="hidden" onchange="importData(event)">
+                    </label>
+                </div>
+                <!-- 전체 삭제 버튼 추가 -->
+                <button onclick="deleteAllData()" class="w-full bg-red-50 text-red-600 border border-red-200 font-semibold py-3 rounded-xl text-xs hover:bg-red-100 transition flex justify-center items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    모든 데이터 전체 삭제
                 </button>
-                <label class="flex-1 bg-gray-50 text-gray-700 border border-gray-200 font-semibold py-3 rounded-xl text-xs hover:bg-gray-100 transition flex justify-center items-center gap-1.5 cursor-pointer">
-                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                    데이터 복원
-                    <input type="file" id="importFile" accept=".json" class="hidden" onchange="importData(event)">
-                </label>
             </section>
 
             <section class="bg-white p-5 rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.03)]">
@@ -139,9 +139,7 @@
                     <div class="w-12 text-center ml-1">최대</div>
                 </div>
 
-                <div id="settingsFields" class="space-y-3 mb-6 pb-2">
-                    <!-- JS 생성 -->
-                </div>
+                <div id="settingsFields" class="space-y-3 mb-6 pb-2"></div>
 
                 <button onclick="saveSettings()" class="w-full bg-gray-900 text-white font-bold py-3.5 rounded-xl hover:bg-gray-800 transition shadow-sm text-sm active:scale-[0.98]">
                     설정 저장하기
@@ -213,7 +211,6 @@
                         <input type="number" step="0.01" id="item_${i}" class="block w-full py-2.5 px-3 rounded-xl border border-gray-200 text-sm bg-gray-50/50 focus:border-gray-400 transition placeholder-gray-300 m-0" placeholder="0.00">
                     </div>
                 `;
-                
                 chartSelector.innerHTML += `<option value="${i}">${currentName}</option>`;
 
                 const minVal = referenceRanges[i]?.min !== undefined ? referenceRanges[i].min : '';
@@ -259,7 +256,6 @@
                 }
             }
             localStorage.setItem('referenceRanges', JSON.stringify(referenceRanges));
-            
             renderUI();
             updateChart();
             alert("설정이 저장되었습니다.");
@@ -307,7 +303,6 @@
                     hasData = true;
                 }
             }
-
             if(!hasData) return alert("저장할 수치가 하나도 없습니다.");
 
             bloodData = bloodData.filter(d => d.date !== dateStr);
@@ -328,6 +323,18 @@
                 document.getElementById('recordMemo').value = '';
                 switchTab(2);
             }, 800);
+        }
+
+        function deleteAllData() {
+            if(confirm("⚠️ 경고: 저장된 모든 수치 기록과 설정이 완전히 삭제됩니다.\n정말 삭제하시겠습니까?")) {
+                if(confirm("‼️ 마지막 확인: 삭제된 데이터는 복구할 수 없습니다.\n진짜로 전부 지우시겠습니까?")) {
+                    localStorage.removeItem('bloodData');
+                    localStorage.removeItem('customItems');
+                    localStorage.removeItem('referenceRanges');
+                    alert("모든 데이터가 안전하게 초기화되었습니다.");
+                    location.reload(); 
+                }
+            }
         }
 
         function updateTrendSummary(selectedItemIndex, itemName, unit) {
@@ -395,18 +402,18 @@
                     const val = record.values[selectedItemIndex];
                     chartData.push(val);
                     pointMemos.push(record.memo || '');
-
-                    const isDanger = range && ((range.min !== null && val < range.min) || (range.max !== null && val > range.max));
                     
+                    // 메모가 있을 경우 (크기 2배인 노란색 동그라미)
                     if(record.memo) {
-                        pointStyles.push('star');
-                        pointRadii.push(12);
-                        pointColors.push('rgb(250, 204, 21)'); 
-                        pointBorderColors.push('rgb(202, 138, 4)'); 
+                        pointStyles.push('circle'); // 동그라미로 변경
+                        pointRadii.push(10);        // 기본 크기(5)의 2배
+                        pointColors.push('rgb(250, 204, 21)'); // 노란색
+                        pointBorderColors.push('#fff'); 
                     } else {
+                        // 메모가 없을 경우 (항상 파란색 동그라미)
                         pointStyles.push('circle');
                         pointRadii.push(5);
-                        pointColors.push(isDanger ? 'rgb(239, 68, 68)' : 'rgb(55, 65, 81)');
+                        pointColors.push('rgb(59, 130, 246)'); // 파란색 (위험수치 관련 붉은색 조건 제거됨)
                         pointBorderColors.push('#fff');
                     }
                 }
