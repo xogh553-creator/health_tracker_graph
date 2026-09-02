@@ -231,10 +231,8 @@
             const allItems = getAllItems();
             
             allItems.forEach((itemName, i) => {
-                const isFixed = i < FIXED_ITEMS.length;
                 const unitText = referenceRanges[i]?.unit ? ` <span class="font-normal text-gray-400">(${referenceRanges[i].unit})</span>` : '';
                 
-                // 1. 기록 탭 입력 필드 (폰트 크기 및 두께 통일)
                 inputContainer.innerHTML += `
                     <div>
                         <label class="block text-[11px] font-bold text-gray-800 truncate mb-1.5 pl-1">${itemName}${unitText}</label>
@@ -242,11 +240,9 @@
                     </div>
                 `;
                 
-                // 2. 그래프 선택 셀렉트박스
                 chartSelector.innerHTML += `<option value="${i}">${itemName}</option>`;
             });
 
-            // 3. 설정 탭 리스트 (고정항목 + 추가항목)
             allItems.forEach((itemName, i) => {
                 const isFixed = i < FIXED_ITEMS.length;
                 const minVal = referenceRanges[i]?.min !== undefined ? referenceRanges[i].min : '';
@@ -280,7 +276,6 @@
             const customIdx = index - FIXED_ITEMS.length;
             customItems.splice(customIdx, 1);
             
-            // 데이터 인덱스 재정렬 처리
             bloodData = bloodData.map(record => {
                 const newValues = {};
                 for (let key in record.values) {
@@ -465,7 +460,7 @@
             `;
         }
 
-        function updateChart() {
+function updateChart() {
             const selector = document.getElementById('chartSelector');
             if(!selector.value) return;
 
@@ -475,23 +470,34 @@
             const range = referenceRanges[selectedItemIndex];
             const unit = range?.unit || '';
 
-            // 기간 필터 적용
             let filteredHistory = bloodData.filter(d => d.values[selectedItemIndex] !== undefined);
-            const now = new Date();
 
-            if (currentPeriod !== 'custom') {
-                let startDate = new Date();
-                if (currentPeriod === '7d') startDate.setDate(now.getDate() - 7);
-                else if (currentPeriod === '1m') startDate.setMonth(now.getMonth() - 1);
-                else if (currentPeriod === '6m') startDate.setMonth(now.getMonth() - 6);
-                else if (currentPeriod === '1y') startDate.setFullYear(now.getFullYear() - 1);
+            if (filteredHistory.length > 0) {
+                if (currentPeriod !== 'custom') {
+                    // 🌟 핵심 수정: '오늘'이 아니라, 해당 항목의 '가장 최근 검사일'을 기준점으로 삼음
+                    const latestRecordDateStr = filteredHistory[filteredHistory.length - 1].date;
+                    const baseDate = new Date(latestRecordDateStr);
+                    
+                    let startDate = new Date(baseDate);
+                    
+                    if (currentPeriod === '7d') {
+                        startDate.setDate(baseDate.getDate() - 7); // 최신 검사일 기준 7일 전
+                    } else if (currentPeriod === '1m') {
+                        startDate.setMonth(baseDate.getMonth() - 1); // 최신 검사일 기준 1달 전
+                    } else if (currentPeriod === '6m') {
+                        startDate.setMonth(baseDate.getMonth() - 6); // 최신 검사일 기준 6개월 전
+                    } else if (currentPeriod === '1y') {
+                        startDate.setFullYear(baseDate.getFullYear() - 1); // 최신 검사일 기준 1년 전
+                    }
 
-                filteredHistory = filteredHistory.filter(d => new Date(d.date) >= startDate);
-            } else {
-                const startInput = document.getElementById('startDate').value;
-                const endInput = document.getElementById('endDate').value;
-                if(startInput) filteredHistory = filteredHistory.filter(d => d.date >= startInput);
-                if(endInput) filteredHistory = filteredHistory.filter(d => d.date <= endInput);
+                    const startDateStr = startDate.toISOString().split('T')[0];
+                    filteredHistory = filteredHistory.filter(d => d.date >= startDateStr);
+                } else {
+                    const startInput = document.getElementById('startDate').value;
+                    const endInput = document.getElementById('endDate').value;
+                    if(startInput) filteredHistory = filteredHistory.filter(d => d.date >= startInput);
+                    if(endInput) filteredHistory = filteredHistory.filter(d => d.date <= endInput);
+                }
             }
 
             updateTrendSummary(selectedItemIndex, itemName, unit, filteredHistory);
@@ -609,7 +615,6 @@
                 }
             });
         }
-
         document.getElementById('imageInput').addEventListener('change', async function(e) {
             const files = e.target.files;
             if (!files || files.length === 0) return;
@@ -683,8 +688,8 @@
         function importData(event) {
             const file = event.target.files[0];
             if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
+            const readerObj = new FileReader();
+            readerObj.onload = function(e) {
                 try {
                     const importedData = JSON.parse(e.target.result);
                     if (importedData.bloodData) {
@@ -696,7 +701,7 @@
                     }
                 } catch { alert("잘못된 파일 형식입니다."); }
             };
-            reader.readAsText(file);
+            readerObj.readAsText(file);
         }
 
         window.onload = () => { renderUI(); switchTab(1); };
