@@ -45,109 +45,114 @@ try { currentTheme = localStorage.getItem(THEME_KEY) || 'light'; } catch(error) 
 if (typeof Chart !== "undefined") Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Segoe UI', Roboto, 'Noto Sans KR', 'Malgun Gothic', system-ui, sans-serif";
 if (typeof Chart !== "undefined") Chart.defaults.color = currentTheme === 'dark' ? '#cbd5e1' : "#6b7280";
 
-// 🌟 카테고리별 추천 항목 데이터베이스 (categoryEn / nameEn / unitEn 은 영어 화면용)
+// 카테고리별 추천 항목 (categoryEn / nameEn / unitEn 은 영어 화면용)
+// 참고 범위(min/max)는 공개 자료에서 직접 확인한 항목에만 넣고, 나머지는 null 로 비워 둔다. (2026-10-05 확인)
+//  - 보건복지부 고시 「건강검진 실시기준」 별표 4 별첨 검사항목별 판정기준(정상A):
+//    AST, ALT, Creatinine, eGFR, Glucose Fasting, T-Chol/Total Cholesterol, LDL-C, HDL-C, TG
+//  - 미국 NHLBI "Blood Tests": WBC, PLT   /   미국 NIDDK "The A1C Test & Diabetes": HbA1c
+//  - 성별에 따라 기준이 다른 항목(RBC, Hb, Hct, γ-GTP 등)은 넣지 않는다.
 const RECOMMENDED_DB = [
     { category: "CBC (일반혈액검사)", categoryEn: "CBC (Complete Blood Count)", items: [
-        { name: "WBC", min: 4, max: 10, unit: "x10³/µL" },
-        { name: "RBC", min: 4, max: 6, unit: "x10⁶/µL" },
-        { name: "Hb / HGB", min: 12, max: 17, unit: "g/dL" },
-        { name: "Hct / HCT", min: 36, max: 52, unit: "%" },
-        { name: "PLT", min: 150, max: 400, unit: "x10³/µL" },
-        { name: "MCV", min: 80, max: 100, unit: "fL" },
-        { name: "MCH", min: 27, max: 33, unit: "pg" },
-        { name: "MCHC", min: 32, max: 36, unit: "g/dL" },
-        { name: "RDW", min: 11.5, max: 14.5, unit: "%" }
+        { name: "WBC", min: 4.5, max: 10, unit: "x10³/µL" },
+        { name: "RBC", min: null, max: null, unit: "x10⁶/µL" },
+        { name: "Hb / HGB", min: null, max: null, unit: "g/dL" },
+        { name: "Hct / HCT", min: null, max: null, unit: "%" },
+        { name: "PLT", min: 140, max: 450, unit: "x10³/µL" },
+        { name: "MCV", min: null, max: null, unit: "fL" },
+        { name: "MCH", min: null, max: null, unit: "pg" },
+        { name: "MCHC", min: null, max: null, unit: "g/dL" },
+        { name: "RDW", min: null, max: null, unit: "%" }
     ]},
     { category: "백혈구 분획", categoryEn: "WBC Differential", items: [
-        { name: "NEUT#", min: 2.0, max: 8.0, unit: "x10³/µL" },
-        { name: "Neutrophil", min: 40, max: 75, unit: "%" },
-        { name: "Lymphocyte", min: 20, max: 45, unit: "%" },
-        { name: "Monocyte", min: 2, max: 10, unit: "%" },
-        { name: "Eosinophil", min: 0, max: 6, unit: "%" },
-        { name: "Basophil", min: 0, max: 2, unit: "%" }
+        { name: "NEUT#", min: null, max: null, unit: "x10³/µL" },
+        { name: "Neutrophil", min: null, max: null, unit: "%" },
+        { name: "Lymphocyte", min: null, max: null, unit: "%" },
+        { name: "Monocyte", min: null, max: null, unit: "%" },
+        { name: "Eosinophil", min: null, max: null, unit: "%" },
+        { name: "Basophil", min: null, max: null, unit: "%" }
     ]},
     { category: "간기능 (Liver Profile)", categoryEn: "Liver Profile", items: [
-        { name: "AST", min: 13, max: 33, unit: "U/L" },
-        { name: "ALT", min: 6, max: 27, unit: "U/L" },
-        { name: "ALP", min: 115, max: 359, unit: "U/L" },
-        { name: "LDH", min: 106, max: 211, unit: "U/L" },
+        { name: "AST", min: null, max: 40, unit: "U/L" },
+        { name: "ALT", min: null, max: 35, unit: "U/L" },
+        { name: "ALP", min: null, max: null, unit: "U/L" },
+        { name: "LDH", min: null, max: null, unit: "U/L" },
         { name: "γ-GTP", min: null, max: null, unit: "U/L" },
-        { name: "T-Bil", min: 0.20, max: 1.20, unit: "mg/dl" },
-        { name: "D-Bil", min: 0.00, max: 0.40, unit: "mg/dl" },
-        { name: "I-Bil", min: 0.10, max: 1.20, unit: "mg/dl" },
-        { name: "T-Prot", min: 6.7, max: 8.3, unit: "gm/dl" },
-        { name: "Albumin", min: 3.8, max: 5.3, unit: "gm/dl" }
+        { name: "T-Bil", min: null, max: null, unit: "mg/dl" },
+        { name: "D-Bil", min: null, max: null, unit: "mg/dl" },
+        { name: "I-Bil", min: null, max: null, unit: "mg/dl" },
+        { name: "T-Prot", min: null, max: null, unit: "gm/dl" },
+        { name: "Albumin", min: null, max: null, unit: "gm/dl" }
     ]},
     { category: "신장기능 및 요산", categoryEn: "Kidney Function & Uric Acid", items: [
-        { name: "Creatinine", min: 0.6, max: 1.3, unit: "mg/dL" },
-        { name: "BUN", min: 7, max: 20, unit: "mg/dL" },
-        { name: "eGFR", min: 90, max: null, unit: "mL/min/1.73m²" },
-        { name: "Uric Acid", min: 3.0, max: 5.5, unit: "mg/dl" }
+        { name: "Creatinine", min: null, max: 1.5, unit: "mg/dL" },
+        { name: "BUN", min: null, max: null, unit: "mg/dL" },
+        { name: "eGFR", min: 60, max: null, unit: "mL/min/1.73m²" },
+        { name: "Uric Acid", min: null, max: null, unit: "mg/dl" }
     ]},
     { category: "혈당 (Glucose)", categoryEn: "Glucose", items: [
-        { name: "Glucose Fasting", min: 80, max: 110, unit: "mg/dl" },
-        { name: "Glucose", min: 70, max: 99, unit: "mg/dL" },
+        { name: "Glucose Fasting", min: null, max: 100, unit: "mg/dl" },
+        { name: "Glucose", min: null, max: null, unit: "mg/dL" },
         { name: "HbA1c", min: null, max: 5.7, unit: "%" }
     ]},
     { category: "전해질", categoryEn: "Electrolytes", items: [
-        { name: "Na", min: 135, max: 145, unit: "mmol/L" },
-        { name: "K", min: 3.5, max: 5.2, unit: "mEq/L" },
-        { name: "Cl", min: 101, max: 108, unit: "mEq/l" },
-        { name: "Ca", min: 8.2, max: 10.3, unit: "mg/dl" },
-        { name: "P", min: 2.7, max: 4.7, unit: "mg/dl" },
+        { name: "Na", min: null, max: null, unit: "mmol/L" },
+        { name: "K", min: null, max: null, unit: "mEq/L" },
+        { name: "Cl", min: null, max: null, unit: "mEq/l" },
+        { name: "Ca", min: null, max: null, unit: "mg/dl" },
+        { name: "P", min: null, max: null, unit: "mg/dl" },
         { name: "Ca*P충족률", nameEn: "Ca × P product", min: null, max: null, unit: "" },
-        { name: "Mg", min: 1.9, max: 3.1, unit: "mg/dl" }
+        { name: "Mg", min: null, max: null, unit: "mg/dl" }
     ]},
     { category: "지질", categoryEn: "Lipids", items: [
-        { name: "T-Chol", min: 130, max: 220, unit: "mg/dl" },
+        { name: "T-Chol", min: null, max: 200, unit: "mg/dl" },
         { name: "Total Cholesterol", min: null, max: 200, unit: "mg/dL" },
-        { name: "LDL-C", min: null, max: 100, unit: "mg/dL" },
-        { name: "HDL-C", min: null, max: null, unit: "mg/dL" },
+        { name: "LDL-C", min: null, max: 130, unit: "mg/dL" },
+        { name: "HDL-C", min: 60, max: null, unit: "mg/dL" },
         { name: "TG", min: null, max: 150, unit: "mg/dL" }
     ]},
     { category: "췌장기능", categoryEn: "Pancreas", items: [
-        { name: "Amylase", min: 43, max: 116, unit: "IU/L" },
-        { name: "Lipase", min: 13, max: 55, unit: "U/L" }
+        { name: "Amylase", min: null, max: null, unit: "IU/L" },
+        { name: "Lipase", min: null, max: null, unit: "U/L" }
     ]},
     { category: "염증", categoryEn: "Inflammation", items: [
-        { name: "CRP 정량", nameEn: "CRP (quantitative)", min: 0.00, max: 0.29, unit: "mg/dl" },
+        { name: "CRP 정량", nameEn: "CRP (quantitative)", min: null, max: null, unit: "mg/dl" },
         { name: "CRP", min: null, max: null, unit: "mg/dL" },
         { name: "ESR", min: null, max: null, unit: "mm/hr" },
-        { name: "Procalcitonin", min: null, max: 0.5, unit: "ng/mL" }
+        { name: "Procalcitonin", min: null, max: null, unit: "ng/mL" }
     ]},
     { category: "근육/조직", categoryEn: "Muscle / Tissue", items: [
         { name: "CK / CPK", min: null, max: null, unit: "U/L" }
     ]},
     { category: "종양표지자", categoryEn: "Tumor Markers", items: [
-        { name: "CA-15-3", min: 0.0, max: 31.3, unit: "U/mL" },
-        { name: "CEA", min: null, max: 5, unit: "ng/mL" },
-        { name: "CA 19-9", min: null, max: 37, unit: "U/mL" },
-        { name: "CA-125", min: null, max: 35, unit: "U/mL" },
+        { name: "CA-15-3", min: null, max: null, unit: "U/mL" },
+        { name: "CEA", min: null, max: null, unit: "ng/mL" },
+        { name: "CA 19-9", min: null, max: null, unit: "U/mL" },
+        { name: "CA-125", min: null, max: null, unit: "U/mL" },
         { name: "AFP", min: null, max: null, unit: "ng/mL" },
-        { name: "PSA", min: null, max: 4, unit: "ng/mL" }
+        { name: "PSA", min: null, max: null, unit: "ng/mL" }
     ]},
     { category: "갑상선", categoryEn: "Thyroid", items: [
-        { name: "TSH", min: 0.4, max: 4, unit: "µIU/mL" },
-        { name: "Free T4", min: 0.8, max: 1.8, unit: "ng/dL" },
-        { name: "T3", min: 80, max: 200, unit: "ng/dL" }
+        { name: "TSH", min: null, max: null, unit: "µIU/mL" },
+        { name: "Free T4", min: null, max: null, unit: "ng/dL" },
+        { name: "T3", min: null, max: null, unit: "ng/dL" }
     ]},
     { category: "철분/빈혈", categoryEn: "Iron / Anemia", items: [
         { name: "Ferritin", min: null, max: null, unit: "ng/mL" },
-        { name: "Iron", min: 60, max: 170, unit: "µg/dL" },
-        { name: "TIBC", min: 250, max: 450, unit: "µg/dL" }
+        { name: "Iron", min: null, max: null, unit: "µg/dL" },
+        { name: "TIBC", min: null, max: null, unit: "µg/dL" }
     ]},
     { category: "비타민", categoryEn: "Vitamins", items: [
-        { name: "Vitamin D (25-OH)", min: 30, max: 100, unit: "ng/mL" },
-        { name: "Vitamin B12", min: 200, max: 900, unit: "pg/mL" },
+        { name: "Vitamin D (25-OH)", min: null, max: null, unit: "ng/mL" },
+        { name: "Vitamin B12", min: null, max: null, unit: "pg/mL" },
         { name: "Folate", min: null, max: null, unit: "ng/mL" }
     ]},
     { category: "응고", categoryEn: "Coagulation", items: [
-        { name: "PT", min: 10.0, max: 13.7, unit: "초", unitEn: "sec" },
-        { name: "PT %", min: 70, max: 135, unit: "%" },
-        { name: "PT INR", min: 0.80, max: 1.20, unit: "" },
-        { name: "aPTT", min: 21.0, max: 34.5, unit: "초", unitEn: "sec" },
-        { name: "Fibrinogen", min: 200, max: 400, unit: "mg/dL" },
-        { name: "D-dimer", min: null, max: 0.5, unit: "µg/mL" }
+        { name: "PT", min: null, max: null, unit: "초", unitEn: "sec" },
+        { name: "PT %", min: null, max: null, unit: "%" },
+        { name: "PT INR", min: null, max: null, unit: "" },
+        { name: "aPTT", min: null, max: null, unit: "초", unitEn: "sec" },
+        { name: "Fibrinogen", min: null, max: null, unit: "mg/dL" },
+        { name: "D-dimer", min: null, max: null, unit: "µg/mL" }
     ]}
 ];
 
@@ -878,6 +883,20 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')) {
 
 applyStaticI18n();
 if(currentTheme === 'dark') document.body.classList.add('dark-mode');
+
+// ==================== 처음 실행 안내 ====================
+// 안내 문구가 바뀌어 다시 확인받아야 하면 숫자를 올린다
+const NOTICE_KEY = 'bloodRecordNoticeAck', NOTICE_VERSION = '1';
+function openNotice() {
+    const overlay = document.getElementById('noticeOverlay');
+    overlay.hidden = false;
+    overlay.scrollTop = 0;
+}
+function acceptNotice() {
+    try { localStorage.setItem(NOTICE_KEY, NOTICE_VERSION); } catch(error) {}
+    document.getElementById('noticeOverlay').hidden = true;
+}
+try { if(localStorage.getItem(NOTICE_KEY) !== NOTICE_VERSION) openNotice(); } catch(error) { openNotice(); }
 
 // 앱 실행 화면: 1.5초 보여준 뒤 사라짐
 setTimeout(() => {

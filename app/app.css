@@ -286,3 +286,27 @@ body.dark-mode .mock { background: var(--surface-2); }
 .shots-wide { grid-template-columns: 1fr; max-width: 300px; }
 .installed-tag { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: #d1fae5; color: #047857; }
 body.dark-mode .installed-tag { background: rgba(16,185,129,0.22); color: #6ee7b7; }
+
+/* ==================== 이용 안내 (처음 실행 · 설정 탭) ==================== */
+.notice-overlay { position: fixed; inset: 0; z-index: 80; background: var(--bg); overflow-y: auto; display: flex; align-items: center; justify-content: center; padding: calc(env(safe-area-inset-top) + 20px) 16px calc(env(safe-area-inset-bottom) + 20px); }
+.notice-card { width: 100%; max-width: 440px; background: var(--surface); border-radius: 20px; padding: 24px 20px 20px; box-shadow: var(--card-shadow); margin: auto; }
+.notice-card h2 { margin: 0 0 16px; font-size: 18px; font-weight: 700; color: var(--text); }
+.notice-card ul { margin: 0 0 16px; padding: 0; list-style: none; }
+.notice-card li { position: relative; padding: 12px 12px 12px 14px; margin-bottom: 8px; background: var(--surface-2); border: 1px solid var(--line); border-left: 3px solid #ef4444; border-radius: 12px; font-size: 13px; line-height: 1.6; color: var(--text-2); word-break: keep-all; }
+.notice-card li b { display: block; color: var(--text); margin-bottom: 2px; }
+.notice-links { margin: 0 0 8px; text-align: center; font-size: 12px; color: var(--muted); }
+.notice-links a { text-decoration: underline; margin: 0 4px; }
+.notice-agree { margin: 0 0 12px; text-align: center; font-size: 11px; color: var(--muted); word-break: keep-all; }
+.notice-box { background: var(--surface); border: 1px solid var(--line); border-left: 3px solid #ef4444; border-radius: 16px; padding: 14px 16px; }
+.notice-box b { display: block; font-size: 13px; color: var(--text); margin-bottom: 3px; }
+.notice-box p { margin: 0 0 8px; font-size: 12px; line-height: 1.6; color: var(--muted); word-break: keep-all; }
+.notice-box button { font-size: 12px; font-weight: 700; color: var(--text-2); text-decoration: underline; }
+
+/* 참고 범위 출처 */
+.source-note { margin-bottom: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); }
+.source-note > summary { padding: 10px 12px; font-size: 11px; font-weight: 700; color: var(--text-2); cursor: pointer; text-decoration: underline; }
+.source-note > div { padding: 0 12px 12px; font-size: 11px; line-height: 1.6; color: var(--muted); word-break: keep-all; }
+.source-note p { margin: 0 0 6px; }
+.source-note ul { margin: 0 0 6px; padding-left: 16px; list-style: disc; }
+.source-note li { margin-bottom: 4px; }
+.source-note b { color: var(--text-2); }
