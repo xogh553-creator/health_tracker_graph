@@ -221,8 +221,8 @@
                 <div id="installArea" class="hidden border-t border-gray-100 pt-4 mt-1">
                     <div class="flex items-center justify-between gap-4">
                         <div>
-                            <h3 class="font-bold text-gray-800 text-sm" data-i18n="install.title">앱 설치</h3>
-                            <p class="text-[11px] text-gray-500 mt-1 leading-relaxed" data-i18n="install.desc">홈 화면에 추가하면 앱처럼 바로 열 수 있습니다.</p>
+                            <div class="title-row"><h3 class="font-bold text-gray-800 text-sm" data-i18n="install.title">앱 설치</h3><span id="installedTag" class="installed-tag" data-i18n="install.installed" hidden>설치됨</span></div>
+                            <p id="installDesc" class="text-[11px] text-gray-500 mt-1 leading-relaxed">홈 화면에 추가하면 앱처럼 바로 열 수 있습니다.</p>
                         </div>
                         <button type="button" onclick="openInstallScreen()" class="flex-none bg-gray-900 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-gray-800 transition active:scale-[0.98]" data-i18n="install.open">설치 방법</button>
                     </div>
@@ -393,16 +393,18 @@
                         <p class="open-here" id="openHere_ios" data-i18n="install.alreadyHere" hidden></p>
                     </li>
                     <li><span data-i18n="install.ios.2"></span>
-                        <div class="mock"><div class="mock-toolbar"><span>‹</span><span>›</span><span class="mock-hit"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M8 7l4-4 4 4M6 11H5a1 1 0 00-1 1v8a1 1 0 001 1h14a1 1 0 001-1v-8a1 1 0 00-1-1h-1"/></svg></span><span>▢</span><span>⧉</span></div></div>
+                        <div class="shots shots-wide"><figure><img src="install/ios-1.webp" alt="" loading="lazy" width="560" height="315"></figure></div>
                     </li>
                     <li><span data-i18n="install.ios.3"></span>
-                        <div class="mock"><div class="mock-list">
-                            <div data-i18n="mock.copy"></div>
-                            <div class="mock-hit"><span data-i18n="mock.a2hs"></span><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8v8M8 12h8"/></svg></div>
-                            <div data-i18n="mock.bookmark"></div>
-                        </div></div>
+                        <div class="shots shots-wide"><figure><img src="install/ios-2.webp" alt="" loading="lazy" width="560" height="801"></figure></div>
                     </li>
                     <li><span data-i18n="install.ios.4"></span>
+                        <div class="shots shots-wide"><figure><img src="install/ios-3.webp" alt="" loading="lazy" width="560" height="764"></figure></div>
+                    </li>
+                    <li><span data-i18n="install.ios.5"></span>
+                        <div class="shots shots-wide"><figure><img src="install/ios-4.webp" alt="" loading="lazy" width="560" height="546"></figure></div>
+                    </li>
+                    <li><span data-i18n="install.ios.6"></span>
                         <div class="mock"><div class="mock-topbar"><span data-i18n="mock.cancel"></span><b data-i18n="mock.a2hs"></b><span class="mock-hit" data-i18n="mock.add"></span></div></div>
                     </li>
                 </ol>
@@ -428,17 +430,10 @@
                             <div class="mock"><div class="mock-bar"><span class="mock-url">blood-log</span><span class="mock-dots mock-hit">⋮</span></div></div>
                         </li>
                         <li><span data-i18n="install.and.3"></span>
-                            <div class="mock"><div class="mock-list">
-                                <div data-i18n="mock.newtab"></div>
-                                <div class="mock-hit"><span data-i18n="mock.installApp"></span><span>⤓</span></div>
-                                <div data-i18n="mock.settings"></div>
-                            </div></div>
+                            <div class="shots"><figure><img src="install/android-chrome-1.webp" alt="" loading="lazy" width="480" height="933"><figcaption>Chrome</figcaption></figure><figure><img src="install/android-samsung-1.webp" alt="" loading="lazy" width="480" height="933"><figcaption data-i18n="install.samsung">삼성 인터넷</figcaption></figure></div>
                         </li>
                         <li><span data-i18n="install.and.4"></span>
-                            <div class="mock"><div class="mock-dialog">
-                                <div class="mock-dialog-title"><img src="icons/icon-192.png" alt="" width="28" height="28"><b data-i18n="appName"></b></div>
-                                <div class="mock-dialog-actions"><span data-i18n="mock.cancel"></span><span class="mock-hit" data-i18n="mock.install"></span></div>
-                            </div></div>
+                            <div class="shots"><figure><img src="install/android-chrome-2.webp" alt="" loading="lazy" width="480" height="933"><figcaption>Chrome</figcaption></figure><figure><img src="install/android-samsung-2.webp" alt="" loading="lazy" width="480" height="933"><figcaption data-i18n="install.samsung">삼성 인터넷</figcaption></figure></div>
                         </li>
                     </ol>
                 </div>

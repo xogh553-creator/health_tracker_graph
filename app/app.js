@@ -832,8 +832,10 @@ function updateInstallUI() {
     document.getElementById('openHere_ios').hidden = !inIOSSafari();
     document.getElementById('openIn_android').hidden = inAndroidInstallBrowser();
     document.getElementById('openHere_android').hidden = !inAndroidInstallBrowser();
-    // 이미 설치해서 열었거나 안드로이드 앱 안에서 열린 경우에는 설치 안내를 숨김
-    document.getElementById('installArea').classList.toggle('hidden', isStandalone() || !!window.AndroidBackup);
+    // 설치한 앱으로 열었을 때는 '설치됨'으로 표시하고, 설치 방법은 계속 볼 수 있게 둔다
+    document.getElementById('installArea').classList.toggle('hidden', !!window.AndroidBackup);
+    document.getElementById('installedTag').hidden = !isStandalone();
+    document.getElementById('installDesc').textContent = t(isStandalone() ? 'install.installedDesc' : 'install.desc');
     document.getElementById('installNowBox').hidden = !deferredInstallPrompt;
     document.getElementById('installManualBox').hidden = !!deferredInstallPrompt;
 }

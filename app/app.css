@@ -277,3 +277,12 @@ body.dark-mode .mock { background: var(--surface-2); }
 .mock-dialog-actions span { padding: 5px 12px; border-radius: 8px; }
 .mock .mock-hit { background: var(--hit-bg); color: var(--hit); font-weight: 700; box-shadow: 0 0 0 2px #ef4444; }
 .mock-list > .mock-hit { box-shadow: inset 0 0 0 2px #ef4444; }
+
+/* 설치 순서 실제 화면 캡처 */
+.shots { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+.shots figure { margin: 0; }
+.shots img { display: block; width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--line); }
+.shots figcaption { margin-top: 5px; font-size: 11px; font-weight: 700; text-align: center; color: var(--muted); }
+.shots-wide { grid-template-columns: 1fr; max-width: 300px; }
+.installed-tag { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: #d1fae5; color: #047857; }
+body.dark-mode .installed-tag { background: rgba(16,185,129,0.22); color: #6ee7b7; }
