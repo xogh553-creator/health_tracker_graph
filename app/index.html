@@ -37,6 +37,13 @@
 
         <!-- ==================== 탭 1: 기록 ==================== -->
         <div id="tab1" class="tab-content active space-y-5">
+            <div id="installBanner" class="backup-banner install-banner" hidden>
+                <p data-i18n="install.bannerText">홈 화면에 설치하면 앱처럼 바로 열 수 있어요. 인터넷이 없어도 사용할 수 있습니다.</p>
+                <div class="backup-banner-actions">
+                    <button type="button" class="backup-banner-primary" onclick="openInstallScreen()" data-i18n="install.bannerOpen">설치 방법 보기</button>
+                    <button type="button" onclick="dismissInstallBanner()" data-i18n="install.bannerClose">닫기</button>
+                </div>
+            </div>
             <div id="backupBanner" class="backup-banner" hidden>
                 <p id="backupBannerText"></p>
                 <div class="backup-banner-actions">

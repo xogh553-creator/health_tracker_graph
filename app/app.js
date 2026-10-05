@@ -898,7 +898,16 @@ async function copyAppLink() {
     try { await navigator.clipboard.writeText(appUrl()); alert(t('install.copied')); }
     catch(error) { alert(appUrl()); }
 }
+// 기록 탭 맨 위 설치 안내: 브라우저로 열었을 때만 보이고, 닫으면 다시 뜨지 않는다
+const INSTALL_HINT_KEY = 'bloodRecordInstallHint';
+function dismissInstallBanner() {
+    try { localStorage.setItem(INSTALL_HINT_KEY, '1'); } catch(error) {}
+    updateInstallUI();
+}
 function updateInstallUI() {
+    let hintDismissed = false;
+    try { hintDismissed = localStorage.getItem(INSTALL_HINT_KEY) === '1'; } catch(error) {}
+    document.getElementById('installBanner').hidden = hintDismissed || isStandalone() || !!window.AndroidBackup;
     document.getElementById('openIn_ios').hidden = inIOSSafari();
     document.getElementById('openHere_ios').hidden = !inIOSSafari();
     document.getElementById('openIn_android').hidden = inAndroidInstallBrowser();
