@@ -2,7 +2,7 @@
 const LANG_KEY = 'bloodRecordLang';
 const I18N = {
     ko: {
-        appName: '혈액 수치 기록',
+        appName: '혈액검사 일지',
         metaDescription: '혈액검사 수치를 직접 기록하고 그래프로 변화를 확인하세요. 기록은 이 기기에만 저장됩니다.',
         'title.1': '검사 결과 기록', 'title.2': '수치 변화 그래프', 'title.3': '항목 관리', 'title.4': '앱 설정',
         'nav.1': '기록', 'nav.2': '그래프', 'nav.3': '항목관리', 'nav.4': '설정',
@@ -144,7 +144,7 @@ const I18N = {
         'err.valueInvalid': '검사 수치는 0 이상의 숫자여야 합니다.'
     },
     en: {
-        appName: 'Blood Test Log',
+        appName: 'My Blood Diary',
         metaDescription: 'Log your blood test results and see how they change over time. Your records stay on this device.',
         'title.1': 'Record Results', 'title.2': 'Trend Chart', 'title.3': 'Manage Items', 'title.4': 'Settings',
         'nav.1': 'Record', 'nav.2': 'Chart', 'nav.3': 'Items', 'nav.4': 'Settings',
@@ -268,7 +268,7 @@ const I18N = {
         'confirm.deleteAll2': 'Last check: deleted data cannot be recovered.\nDelete everything?',
         'alert.allDeleted': 'All data has been reset.',
         'alert.exportBlocked': 'Saved data could not be read, so an empty backup was not created.',
-        'backup.fileName': 'blood-test-backup_{date}.json',
+        'backup.fileName': 'my-blood-diary-backup_{date}.json',
         'alert.exported': 'Backup download requested. Please check the saved file.',
         'alert.exportFail': 'Something went wrong while backing up.',
         'alert.fileReadFail': 'The file could not be read. Your existing data was not changed.',

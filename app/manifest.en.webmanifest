@@ -1,6 +1,6 @@
 {
-  "name": "Blood Test Log",
-  "short_name": "Blood Log",
+  "name": "My Blood Diary",
+  "short_name": "Blood Diary",
   "description": "Log your blood test results and see how they change over time. Your records stay on this device.",
   "lang": "en",
   "start_url": "./",
