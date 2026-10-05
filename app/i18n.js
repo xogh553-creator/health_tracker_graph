@@ -253,7 +253,7 @@ const I18N = {
         'install.androidOnly': 'This button only works on a Galaxy or Android phone.',
         'history.title': 'Past records',
         'history.hint': 'Tap a record to load it for editing.',
-        'history.count': '{n} values',
+        'history.count': 'Values: {n}',
         'history.more': 'Show {n} more ({left} left)',
         'history.less': 'Show less',
         'memo.prefix': 'Note: ',
@@ -323,7 +323,11 @@ let currentLang = 'ko';
 try {
     const fromUrl = new URLSearchParams(location.search).get('lang');
     const saved = localStorage.getItem(LANG_KEY);
-    if (I18N[fromUrl]) { currentLang = fromUrl; localStorage.setItem(LANG_KEY, fromUrl); }
+    if (I18N[fromUrl]) {
+        currentLang = fromUrl; localStorage.setItem(LANG_KEY, fromUrl);
+        // 주소의 ?lang= 은 한 번만 쓰고 지운다. 남겨 두면 새로고침할 때마다 설정에서 바꾼 언어가 되돌아간다.
+        history.replaceState(history.state, '', location.pathname + location.hash);
+    }
     else if (I18N[saved]) currentLang = saved;
     else currentLang = (navigator.language || 'ko').toLowerCase().startsWith('ko') ? 'ko' : 'en';
 } catch (error) {

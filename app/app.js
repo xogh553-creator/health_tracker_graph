@@ -445,7 +445,8 @@ function loadRecordForDate() {
 
     const found = bloodData.find(d => d.date === dateStr);
     loadedDate = found ? dateStr : null;
-    fillRecord(found);
+    // 기록이 없는 날짜면 입력해 둔 값은 그대로 둔다
+    if(found) fillRecord(found);
     renderHistory();
     alert(found ? t('alert.loaded', {date: dateStr}) : t('alert.noRecordForDate'));
 }
@@ -568,6 +569,7 @@ async function deleteAllData() {
     if(!storageError && !userItems.length && !bloodData.length) return alert(t('alert.noData'));
     if(!await uiConfirm(t('confirm.deleteAll1')))return;
     if(!await uiConfirm(t('confirm.deleteAll2')))return;
+    storageError = false;   // 읽지 못한 데이터도 여기서는 지울 수 있어야 한다
     if(commitState([],[])) {
         try {for(const key of ['bloodData','userItems','customItems','referenceRanges'])localStorage.removeItem(key);}catch(error){}
         await alert(t('alert.allDeleted'));location.reload();
@@ -610,7 +612,7 @@ function updateTrendSummary(currentItem, filteredHistory) {
 
     if(filteredHistory.length >= 2) {
         const previousVal = filteredHistory[filteredHistory.length - 2].values[currentItem.id];
-        const diff = (currentVal - previousVal).toFixed(2);
+        const diff = Number((currentVal - previousVal).toFixed(2));
 
         if(diff > 0) {
             trendHtml = `<div class="trend-chip">▲ ${diff}</div>`;
@@ -835,6 +837,7 @@ function importData(event) {
             try { parsed=JSON.parse(e.target.result); } catch(parseError) { throw Error(t('err.notBackupFile')); }
             const data=normalizeBackup(parsed);
             if(!await uiConfirm(t('confirm.restore', {records: data.bloodData.length, items: data.userItems.length})))return;
+            storageError = false;   // 읽지 못한 데이터 위에도 백업은 복원할 수 있어야 한다
             if(commitState(data.userItems,data.bloodData)) {markBackupDone();await alert(t('alert.restored'));location.reload();}
         } catch(error) {alert(t('alert.restoreFail')+error.message);}
     };
