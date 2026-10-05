@@ -37,6 +37,13 @@
 
         <!-- ==================== 탭 1: 기록 ==================== -->
         <div id="tab1" class="tab-content active space-y-5">
+            <div id="backupBanner" class="backup-banner" hidden>
+                <p id="backupBannerText"></p>
+                <div class="backup-banner-actions">
+                    <button type="button" class="backup-banner-primary" onclick="exportData()" data-i18n="backup.now">지금 백업</button>
+                    <button type="button" onclick="snoozeBackup()" data-i18n="backup.later">나중에</button>
+                </div>
+            </div>
             <div id="emptyStateTab1" class="hidden bg-white p-6 rounded-2xl shadow-sm text-center">
                 <svg class="icon-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
                 <h3 class="text-sm font-bold text-gray-800 mb-1" data-i18n="empty1.title">등록된 검사 항목이 없습니다</h3>
@@ -217,6 +224,7 @@
                     <span data-i18n="btn.deleteAll">모든 데이터 전체 삭제</span>
                 </button>
                 <p class="local-note text-[11px] text-gray-500 leading-relaxed"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 11V8a5 5 0 0110 0v3M6 11h12a1 1 0 011 1v7a1 1 0 01-1 1H6a1 1 0 01-1-1v-7a1 1 0 011-1z"/></svg><span data-i18n="data.local">검사 기록은 이 기기에만 저장되며 서버로 전송되지 않습니다.</span></p>
+                <p id="lastBackupText" class="text-[11px] text-gray-500 leading-relaxed"></p>
 
                 <div class="border-t border-gray-100 pt-4 mt-1">
                     <div class="flex items-center justify-between gap-4">
@@ -247,6 +255,16 @@
                             <p id="installDesc" class="text-[11px] text-gray-500 mt-1 leading-relaxed">홈 화면에 추가하면 앱처럼 바로 열 수 있습니다.</p>
                         </div>
                         <button type="button" onclick="openInstallScreen()" class="flex-none bg-gray-900 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-gray-800 transition active:scale-[0.98]" data-i18n="install.open">설치 방법</button>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-100 pt-4 mt-1">
+                    <div class="flex items-center justify-between gap-4">
+                        <div>
+                            <h3 class="font-bold text-gray-800 text-sm" data-i18n="share.title">앱 공유</h3>
+                            <p class="text-[11px] text-gray-500 mt-1 leading-relaxed" data-i18n="share.desc">필요한 분께 이 앱을 알려주세요.</p>
+                        </div>
+                        <button type="button" onclick="shareApp()" class="flex-none bg-gray-900 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-gray-800 transition active:scale-[0.98]" data-i18n="share.btn">공유</button>
                     </div>
                 </div>
             </section>
@@ -434,7 +452,7 @@
                         <div class="shots shots-wide"><figure><img src="install/ios-4.webp" alt="" loading="lazy" width="560" height="546"></figure></div>
                     </li>
                     <li><span data-i18n="install.ios.6"></span>
-                        <div class="mock"><div class="mock-topbar"><span data-i18n="mock.cancel"></span><b data-i18n="mock.a2hs"></b><span class="mock-hit" data-i18n="mock.add"></span></div></div>
+                        <div class="shots shots-wide"><figure><img src="install/ios-5.webp" alt="" loading="lazy" width="560" height="455"></figure></div>
                     </li>
                 </ol>
             </div>
@@ -456,7 +474,7 @@
                             <p class="open-here" id="openHere_android" data-i18n="install.alreadyHere" hidden></p>
                         </li>
                         <li><span data-i18n="install.and.2"></span>
-                            <div class="mock"><div class="mock-bar"><span class="mock-url">myblooddiary.com</span><span class="mock-dots mock-hit">⋮</span></div></div>
+                            <div class="shots"><figure><img src="install/android-chrome-0.webp" alt="" loading="lazy" width="560" height="229"><figcaption>Chrome</figcaption></figure><figure><img src="install/android-samsung-0.webp" alt="" loading="lazy" width="560" height="229"><figcaption data-i18n="install.samsung">삼성 인터넷</figcaption></figure></div>
                         </li>
                         <li><span data-i18n="install.and.3"></span>
                             <div class="shots"><figure><img src="install/android-chrome-1.webp" alt="" loading="lazy" width="480" height="933"><figcaption>Chrome</figcaption></figure><figure><img src="install/android-samsung-1.webp" alt="" loading="lazy" width="480" height="933"><figcaption data-i18n="install.samsung">삼성 인터넷</figcaption></figure></div>
@@ -469,6 +487,28 @@
             </div>
             <p class="install-note" data-i18n="install.mockNote"></p>
             <p class="install-note" data-i18n="install.done"></p>
+        </div>
+    </div>
+
+    <!-- 앱 공유 창 -->
+    <div id="shareOverlay" class="dialog-overlay share-overlay" hidden onclick="if(event.target===this) closeShareSheet()">
+        <div class="share-sheet" role="dialog" aria-modal="true" aria-labelledby="shareTitle">
+            <div class="share-head">
+                <h2 id="shareTitle" data-i18n="share.sheetTitle">공유하기</h2>
+                <button type="button" class="share-close" onclick="closeShareSheet()" data-i18n-aria="share.close" aria-label="닫기">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                </button>
+            </div>
+            <div class="share-targets">
+                <button type="button" onclick="shareTo('kakao')"><span class="share-icon share-kakao">TALK</span><span data-i18n="share.kakao">카카오톡</span></button>
+                <button type="button" onclick="shareTo('line')"><span class="share-icon share-line">LINE</span><span data-i18n="share.line">라인</span></button>
+                <button type="button" onclick="shareTo('x')"><span class="share-icon share-x">X</span><span>X</span></button>
+                <button type="button" onclick="shareTo('facebook')"><span class="share-icon share-facebook">f</span><span data-i18n="share.facebook">페이스북</span></button>
+            </div>
+            <div class="share-url">
+                <span id="shareUrlText"></span>
+                <button type="button" onclick="copyShareUrl()" data-i18n="share.copyUrl">URL 복사</button>
+            </div>
         </div>
     </div>
 

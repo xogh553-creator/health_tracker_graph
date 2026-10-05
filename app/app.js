@@ -224,7 +224,9 @@ function commitState(items, records) {
         const next=normalizeBackup({userItems:items,bloodData:records});
         localStorage.setItem(STORAGE_KEY,JSON.stringify(next));
         userItems=next.userItems; bloodData=next.bloodData;
+        try { localStorage.setItem(CHANGE_KEY, String(Date.now())); } catch(error) {}
         renderHistory();
+        updateBackupUI();
         // 기록이 생기면 브라우저가 저장 공간을 임의로 비우지 않도록 요청
         if(next.bloodData.length && navigator.storage?.persist) navigator.storage.persist().catch(() => {});
         return true;
@@ -365,6 +367,67 @@ function saveSettings() {
         return {...item,name:get('name').trim() || t('item.noName'),unit:get('unit').trim(),min:get('min')===''?null:Number(get('min')),max:get('max')===''?null:Number(get('max'))};
     });
     if(commitState(items,bloodData)) {renderUI(false);updateChart();alert(t('alert.settingsSaved'));}
+}
+
+// ==================== 백업 알림 ====================
+// 마지막 백업 뒤 30일이 지났고 그 사이 기록이 바뀌었으면 기록 탭 위에 알린다. '나중에'를 누르면 7일 동안 쉰다.
+const BACKUP_KEY = 'bloodRecordLastBackup', CHANGE_KEY = 'bloodRecordLastChange', SNOOZE_KEY = 'bloodRecordBackupSnooze';
+const BACKUP_REMIND_DAYS = 30, BACKUP_SNOOZE_DAYS = 7, BACKUP_FIRST_REMIND_RECORDS = 3, DAY_MS = 86400000;
+function readTime(key) {
+    try { const value = Number(localStorage.getItem(key)); return Number.isFinite(value) && value > 0 ? value : null; }
+    catch(error) { return null; }
+}
+function markBackupDone() {
+    try { localStorage.setItem(BACKUP_KEY, String(Date.now())); localStorage.removeItem(SNOOZE_KEY); } catch(error) {}
+    updateBackupUI();
+}
+function snoozeBackup() {
+    try { localStorage.setItem(SNOOZE_KEY, String(Date.now())); } catch(error) {}
+    updateBackupUI();
+}
+function updateBackupUI() {
+    const last = readTime(BACKUP_KEY), changed = readTime(CHANGE_KEY), snoozed = readTime(SNOOZE_KEY), now = Date.now();
+    document.getElementById('lastBackupText').textContent = last
+        ? t('backup.last', {date: localDate(new Date(last)).replaceAll('-', '.')})
+        : t('backup.never');
+    let message = '';
+    if(!last) {
+        if(bloodData.length >= BACKUP_FIRST_REMIND_RECORDS) message = t('backup.remindNever');
+    } else if(bloodData.length) {
+        const days = Math.floor((now - last) / DAY_MS);
+        if(days >= BACKUP_REMIND_DAYS && changed && changed > last) message = t('backup.remindOld', {days});
+    }
+    if(snoozed && now - snoozed < BACKUP_SNOOZE_DAYS * DAY_MS) message = '';
+    document.getElementById('backupBanner').hidden = !message;
+    document.getElementById('backupBannerText').textContent = message;
+}
+
+// ==================== 앱 공유 ====================
+// 공유되는 주소는 앱이 아니라 소개 페이지 (받는 사람이 설명을 먼저 보도록)
+function shareUrl() { return new URL(currentLang === 'en' ? '../en/' : '../', location.href).href; }
+function shareApp() {
+    document.getElementById('shareUrlText').textContent = shareUrl();
+    document.getElementById('shareOverlay').hidden = false;
+}
+function closeShareSheet() { document.getElementById('shareOverlay').hidden = true; }
+async function copyShareUrl(message) {
+    try { await navigator.clipboard.writeText(shareUrl()); alert(message || t('share.copied')); }
+    catch(error) { alert(shareUrl()); }
+}
+async function shareTo(target) {
+    const url = encodeURIComponent(shareUrl()), text = encodeURIComponent(t('appName') + ' - ' + t('share.text'));
+    const links = {
+        line: `https://social-plugins.line.me/lineit/share?url=${url}`,
+        x: `https://twitter.com/intent/tweet?text=${text}&url=${url}`,
+        facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}`
+    };
+    if(links[target]) { window.open(links[target], '_blank', 'noopener'); return; }
+    // 카카오톡: 휴대폰의 공유 창을 열어 카카오톡을 고르게 한다. 공유 창이 없으면 주소를 복사해 준다.
+    if(navigator.share) {
+        try { await navigator.share({title: t('appName'), text: t('share.text'), url: shareUrl()}); return; }
+        catch(error) { if(error?.name === 'AbortError') return; }
+    }
+    copyShareUrl(t('share.kakaoCopied'));
 }
 
 // 기록 하나를 입력 칸에 채운다 (record 가 없으면 칸을 비운다)
@@ -739,6 +802,7 @@ function exportData() {
         const fileName = t('backup.fileName', {date: localDate()});
         if (window.AndroidBackup && typeof window.AndroidBackup.save === 'function') {
             window.AndroidBackup.save(dataStr, fileName);
+            markBackupDone();
             return;
         }
         const blob = new Blob([dataStr], { type: "application/json" });
@@ -752,6 +816,7 @@ function exportData() {
         document.body.removeChild(a);
         setTimeout(()=>URL.revokeObjectURL(url),10000);
 
+        markBackupDone();
         alert(t('alert.exported'));
     } catch (error) {
         alert(t('alert.exportFail'));
@@ -770,7 +835,7 @@ function importData(event) {
             try { parsed=JSON.parse(e.target.result); } catch(parseError) { throw Error(t('err.notBackupFile')); }
             const data=normalizeBackup(parsed);
             if(!await uiConfirm(t('confirm.restore', {records: data.bloodData.length, items: data.userItems.length})))return;
-            if(commitState(data.userItems,data.bloodData)) {await alert(t('alert.restored'));location.reload();}
+            if(commitState(data.userItems,data.bloodData)) {markBackupDone();await alert(t('alert.restored'));location.reload();}
         } catch(error) {alert(t('alert.restoreFail')+error.message);}
     };
     readerObj.readAsText(file);
@@ -789,6 +854,7 @@ function applyLang() {
     renderUI();
     updateChart();
     updateInstallUI();
+    updateBackupUI();
 }
 function setLang(lang) {
     if(!I18N[lang] || lang === currentLang) return;
