@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="혈액 수치 기록">
+    <title>혈액 수치 기록</title>
+    <meta name="description" content="혈액검사 수치를 직접 기록하고 그래프로 변화를 확인하세요. 기록은 이 기기에만 저장됩니다.">
+    <meta name="theme-color" content="#f2f2f7">
+    <link rel="manifest" id="manifestLink" href="manifest.webmanifest">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <link rel="stylesheet" href="tailwind.css">
+    <link rel="stylesheet" href="app.css">
+</head>
+<body class="bg-[#f2f2f7] text-gray-900 h-[100dvh] flex flex-col overflow-hidden tracking-tight">
+
+    <!-- 앱 실행 화면 (1.5초) -->
+    <div id="splash" class="splash" aria-hidden="true">
+        <div class="splash-main">
+            <img src="icons/icon-192.png" alt="" width="96" height="96">
+            <span class="splash-name" data-i18n="appName"></span>
+            <p data-i18n="splash.msg"></p>
+            <small data-i18n="splash.sub"></small>
+        </div>
+        <span class="splash-foot"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 11V8a5 5 0 0110 0v3M6 11h12a1 1 0 011 1v7a1 1 0 01-1 1H6a1 1 0 01-1-1v-7a1 1 0 011-1z"/></svg><span data-i18n="splash.foot"></span></span>
+    </div>
+
+    <header class="bg-white/80 backdrop-blur-md border-b border-gray-200/60 px-4 pb-4 pt-safe text-center flex-none z-10 sticky top-0">
+        <h1 class="text-[17px] font-bold text-gray-800" id="headerTitle">검사 결과 기록</h1>
+    </header>
+
+    <main class="flex-1 overflow-y-auto p-4">
+
+        <!-- ==================== 탭 1: 기록 ==================== -->
+        <div id="tab1" class="tab-content active space-y-5">
+            <div id="emptyStateTab1" class="hidden bg-white p-6 rounded-2xl shadow-sm text-center">
+                <svg class="icon-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                <h3 class="text-sm font-bold text-gray-800 mb-1" data-i18n="empty1.title">등록된 검사 항목이 없습니다</h3>
+                <p class="text-xs text-gray-500 mb-4" data-i18n="empty1.desc">항목 관리 탭에서 기록할 항목을 먼저 추가해주세요.</p>
+                <button onclick="switchTab(3)" class="bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-xs font-bold hover:bg-blue-100 transition" data-i18n="empty1.btn">항목 관리로 이동</button>
+            </div>
+
+            <div id="contentTab1">
+                <section class="bg-white p-5 rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.03)]">
+                    <div class="mb-5 space-y-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 mb-1" data-i18n="date.label">검사 날짜</label>
+                            <div class="flex gap-2">
+                                <input type="date" id="recordDate" class="flex-1 appearance-none rounded-xl border border-gray-200 py-3 px-3 text-sm bg-gray-50/50 focus:border-gray-400 transition text-left text-gray-800 m-0">
+                                <button onclick="loadRecordForDate()" class="bg-gray-100 text-gray-700 px-3.5 rounded-xl text-xs font-bold hover:bg-gray-200 transition active:scale-[0.98]" data-i18n="btn.load">불러오기</button>
+                                <button onclick="deleteRecordForDate()" class="bg-red-50 text-red-600 px-3.5 rounded-xl text-xs font-bold hover:bg-red-100 transition active:scale-[0.98]" data-i18n="btn.delete">삭제</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 mb-1" data-i18n="memo.label">상태 메모 (선택)</label>
+                            <input type="text" id="recordMemo" placeholder="예: 1차 항암 후 3일차" data-i18n-ph="memo.ph" class="block w-full appearance-none rounded-xl border border-gray-200 py-3 px-3 text-sm bg-gray-50/50 focus:border-gray-400 transition placeholder-gray-300 m-0">
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-100 pt-5 mb-5">
+                        <h3 class="text-xs font-semibold text-gray-500 mb-3" data-i18n="values.title">수치 직접 입력</h3>
+                        <div id="inputFields" class="grid grid-cols-2 gap-x-4 gap-y-3"></div>
+                    </div>
+
+                    <button onclick="saveData()" class="w-full bg-gray-900 text-white font-bold py-3.5 rounded-xl hover:bg-gray-800 transition shadow-sm text-sm active:scale-[0.98]" data-i18n="btn.saveRecord">저장</button>
+                </section>
+
+                <section id="historySection" class="bg-white p-5 rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.03)] mt-5" hidden>
+                    <div class="title-row title-row-gap"><span class="badge badge-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><h3 class="font-bold text-gray-800 text-sm" data-i18n="history.title">지난 기록</h3></div>
+                    <p class="history-hint" data-i18n="history.hint">기록을 누르면 불러와서 수정할 수 있습니다.</p>
+                    <div id="historyList" class="history-list"></div>
+                    <button type="button" id="historyMore" class="history-more" onclick="showMoreHistory()" hidden></button>
+                    <button type="button" id="historyLess" class="history-more history-less" onclick="collapseHistory()" data-i18n="history.less" hidden>접기</button>
+                </section>
+            </div>
+        </div>
+
+        <!-- ==================== 탭 2: 그래프 ==================== -->
+        <div id="tab2" class="tab-content space-y-4">
+            <div id="emptyStateTab2" class="hidden bg-white p-6 rounded-2xl shadow-sm text-center mt-10">
+                <svg class="icon-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
+                <h3 class="text-sm font-bold text-gray-800 mb-1" data-i18n="empty2.title">분석할 항목이 없습니다</h3>
+                <p class="text-xs text-gray-500" data-i18n="empty2.desc">항목 관리에서 항목을 추가하고 수치를 기록해보세요.</p>
+            </div>
+
+            <section id="contentTab2" class="bg-white p-5 rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.03)]">
+                <div class="relative mb-4">
+                    <select id="chartSelector" onchange="updateChart()" class="block w-full appearance-none rounded-xl border border-gray-200 py-3 px-3 text-sm font-bold text-gray-800 bg-gray-50/50 pr-8 m-0"></select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                    </div>
+                </div>
+
+                <!-- 기간 필터 버튼들 -->
+                <div class="grid grid-cols-5 gap-1 bg-gray-100 p-1 rounded-xl mb-4 text-center">
+                    <button onclick="setPeriod('7d')" id="period_7d" class="py-1.5 text-[11px] font-bold rounded-lg transition bg-white shadow-sm text-gray-800" data-i18n="period.7d">1주일</button>
+                    <button onclick="setPeriod('1m')" id="period_1m" class="py-1.5 text-[11px] font-bold rounded-lg transition text-gray-500" data-i18n="period.1m">1개월</button>
+                    <button onclick="setPeriod('6m')" id="period_6m" class="py-1.5 text-[11px] font-bold rounded-lg transition text-gray-500" data-i18n="period.6m">6개월</button>
+                    <button onclick="setPeriod('1y')" id="period_1y" class="py-1.5 text-[11px] font-bold rounded-lg transition text-gray-500" data-i18n="period.1y">1년</button>
+                    <button onclick="setPeriod('custom')" id="period_custom" class="py-1.5 text-[11px] font-bold rounded-lg transition text-gray-500" data-i18n="period.custom">직접</button>
+                </div>
+
+                <!-- 직접지정 달력 영역 -->
+                <div id="customDateArea" class="hidden grid grid-cols-2 gap-2 mb-4 bg-gray-50 p-3 rounded-xl border border-gray-100">
+                    <div>
+                        <label class="block text-[10px] text-gray-400 mb-1" data-i18n="range.start">시작일</label>
+                        <input type="date" id="startDate" onchange="updateChart()" class="w-full p-1.5 text-xs rounded-lg border border-gray-200 bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-gray-400 mb-1" data-i18n="range.end">종료일</label>
+                        <input type="date" id="endDate" onchange="updateChart()" class="w-full p-1.5 text-xs rounded-lg border border-gray-200 bg-white">
+                    </div>
+                </div>
+
+                <div id="trendSummary" class="bg-[#f8f8fb] p-4 rounded-xl mb-6 flex justify-between items-center border border-gray-100/50">
+                    <div class="text-xs text-gray-500" data-i18n="trend.none">기록이 없습니다.</div>
+                </div>
+
+                <div class="relative w-full min-h-[250px]">
+                    <canvas id="myChart" width="400" height="300"></canvas>
+                    <div id="chartEmptyState" class="hidden absolute inset-0 flex items-center justify-center bg-white/90 backdrop-blur-sm rounded-xl z-10 border border-gray-100">
+                        <p class="text-sm font-bold text-gray-400" data-i18n="chart.empty">조건에 해당하는 기록이 없습니다.</p>
+                    </div>
+                </div>
+
+                <div class="flex justify-center items-center gap-3 mt-5 pt-4 border-t border-gray-100">
+                    <div class="flex items-center gap-1 text-[10px] text-gray-500">
+                        <span class="w-2.5 h-2.5 rounded-sm bg-emerald-100 border border-emerald-200"></span> <span data-i18n="legend.normal">참고 범위</span>
+                    </div>
+                    <div class="flex items-center gap-1 text-[10px] text-gray-500">
+                        <span class="text-yellow-400 text-xs">●</span> <span data-i18n="legend.memo">메모 기록</span>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ==================== 탭 3: 항목 관리 ==================== -->
+        <div id="tab3" class="tab-content space-y-4">
+            <section class="bg-white p-5 rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.03)]">
+                <div class="flex justify-between items-center mb-4">
+                    <div class="title-row"><span class="badge badge-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg></span><h2 class="font-bold text-gray-800 text-sm" data-i18n="my.title">나의 관리 항목</h2></div>
+                    <button onclick="addCustomItemField()" class="bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-gray-200 transition flex items-center gap-1" data-i18n="btn.addCustom">+ 직접 추가</button>
+                </div>
+
+                <!-- 항목명/단위/최소/최대를 입력창과 1:1로 맞추기 위한 헤더 -->
+                <div class="flex items-center space-x-1.5 text-[10px] font-bold text-gray-400 mb-2 px-1">
+                    <div class="flex-1 px-2" data-i18n="col.name">항목명</div>
+                    <div class="w-12 text-center" data-i18n="col.unit">단위</div>
+                    <div class="w-12 text-center" data-i18n="col.min">최소</div>
+                    <div class="w-12 text-center" data-i18n="col.max">최대</div>
+                    <div class="w-[28px]"></div> <!-- 삭제 버튼 X 여백 보정 -->
+                </div>
+
+                <div id="settingsFields" class="space-y-3 mb-6 pb-2">
+                    <!-- 사용자가 추가한 항목들이 렌더링됩니다 -->
+                </div>
+
+                <button onclick="saveSettings()" class="w-full bg-gray-900 text-white font-bold py-3.5 rounded-xl hover:bg-gray-800 transition shadow-sm text-sm active:scale-[0.98]" data-i18n="btn.saveSettings">항목 설정 저장하기</button>
+            </section>
+
+            <section class="bg-white p-5 rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.03)]">
+                <div class="flex justify-between items-center mb-3">
+                    <div class="title-row"><span class="badge badge-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-4 10.5c.6.6 1 1.3 1 2.5h6c0-1.2.4-1.9 1-2.5A6 6 0 0012 3z"/></svg></span><h2 class="font-bold text-gray-800 text-sm" data-i18n="rec.title">추천 항목에서 추가</h2></div>
+                </div>
+                <p class="text-[11px] text-gray-500 mb-4" data-i18n="rec.desc">자주 쓰이는 검사 항목을 터치하여 바로 추가하세요. 일반적인 참고 수치가 자동 입력됩니다. 참고 범위는 병원마다 다르니 검사지에 맞게 수정해주세요.</p>
+                <div id="recommendedChips" class="flex flex-col gap-1">
+                    <!-- 추천 항목들이 여기에 카테고리별로 렌더링됩니다 -->
+                </div>
+            </section>
+        </div>
+
+        <!-- ==================== 탭 4: 설정 ==================== -->
+        <div id="tab4" class="tab-content space-y-4">
+
+            <!-- 1. 데이터 관리 (상단 배치) -->
+            <section class="bg-white p-5 rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex flex-col gap-3">
+                <div class="title-row"><span class="badge badge-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/></svg></span><h2 class="font-bold text-gray-800 text-sm" data-i18n="data.title">데이터 관리</h2></div>
+                <div class="flex gap-3">
+                    <button onclick="exportData()" class="flex-1 bg-gray-50 text-gray-700 border border-gray-200 font-semibold py-3 rounded-xl text-xs hover:bg-gray-100 transition flex justify-center items-center gap-1.5">
+                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        <span data-i18n="btn.backup">데이터 백업</span>
+                    </button>
+                    <label class="flex-1 bg-gray-50 text-gray-700 border border-gray-200 font-semibold py-3 rounded-xl text-xs hover:bg-gray-100 transition flex justify-center items-center gap-1.5 cursor-pointer">
+                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                        <span data-i18n="btn.restore">데이터 복원</span>
+                        <input type="file" id="importFile" accept=".json" class="hidden" onchange="importData(event)">
+                    </label>
+                </div>
+                <button onclick="deleteAllData()" class="w-full bg-red-50 text-red-600 border border-red-200 font-semibold py-3 rounded-xl text-xs hover:bg-red-100 transition flex justify-center items-center gap-1.5 mt-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    <span data-i18n="btn.deleteAll">모든 데이터 전체 삭제</span>
+                </button>
+                <p class="local-note text-[11px] text-gray-500 leading-relaxed"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 11V8a5 5 0 0110 0v3M6 11h12a1 1 0 011 1v7a1 1 0 01-1 1H6a1 1 0 01-1-1v-7a1 1 0 011-1z"/></svg><span data-i18n="data.local">검사 기록은 이 기기에만 저장되며 서버로 전송되지 않습니다.</span></p>
+
+                <div class="border-t border-gray-100 pt-4 mt-1">
+                    <div class="flex items-center justify-between gap-4">
+                        <div>
+                            <h3 class="font-bold text-gray-800 text-sm" data-i18n="theme.title">화면 모드</h3>
+                            <p id="themeModeText" class="text-[11px] text-gray-500 mt-1">주간모드 사용 중</p>
+                        </div>
+                        <button type="button" onclick="toggleTheme()" id="themeToggle" class="theme-toggle-track relative w-[62px] h-[34px] rounded-full bg-gray-100 border border-gray-200 transition flex items-center p-[2px]" aria-label="주간모드 야간모드 전환" data-i18n-aria="theme.aria">
+                            <span class="theme-toggle-thumb block w-[28px] h-[28px] rounded-full bg-white shadow-sm transition-transform"></span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-100 pt-4 mt-1">
+                    <div class="flex items-center justify-between gap-4">
+                        <h3 class="font-bold text-gray-800 text-sm" data-i18n="lang.title">언어</h3>
+                        <div class="grid grid-cols-2 gap-1 bg-gray-100 p-1 rounded-xl text-center">
+                            <button type="button" onclick="setLang('ko')" id="lang_ko" class="px-3 py-1.5 text-[11px] font-bold rounded-lg transition text-gray-500">한국어</button>
+                            <button type="button" onclick="setLang('en')" id="lang_en" class="px-3 py-1.5 text-[11px] font-bold rounded-lg transition text-gray-500">English</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="installArea" class="hidden border-t border-gray-100 pt-4 mt-1">
+                    <div class="flex items-center justify-between gap-4">
+                        <div>
+                            <h3 class="font-bold text-gray-800 text-sm" data-i18n="install.title">앱 설치</h3>
+                            <p class="text-[11px] text-gray-500 mt-1 leading-relaxed" data-i18n="install.desc">홈 화면에 추가하면 앱처럼 바로 열 수 있습니다.</p>
+                        </div>
+                        <button type="button" onclick="openInstallScreen()" class="flex-none bg-gray-900 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-gray-800 transition active:scale-[0.98]" data-i18n="install.open">설치 방법</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. 사용방법 (아코디언) -->
+            <details class="group bg-white p-5 rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.03)]">
+                <summary class="flex justify-between items-center font-bold text-gray-800 text-sm cursor-pointer list-none">
+                    <div class="flex items-center gap-2">
+                        <span class="badge badge-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6.5C10.5 5.3 8.3 5 5 5v13c3.3 0 5.5.3 7 1.5 1.5-1.2 3.7-1.5 7-1.5V5c-3.3 0-5.5.3-7 1.5zm0 0v13"/></svg></span> <span data-i18n="howto.title">앱 사용 방법</span>
+                    </div>
+                    <span class="transition group-open:rotate-180 text-gray-400">
+                        <svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="20"><path d="M6 9l6 6 6-6"></path></svg>
+                    </span>
+                </summary>
+                <div data-lang="ko" class="text-[12px] text-gray-600 mt-4 leading-relaxed space-y-3 border-t border-gray-100 pt-4">
+                    <div>
+                        <strong class="text-gray-800 text-[13px]">1. 항목 설정하기</strong><br>
+                        '항목관리' 탭에서 관리하고 싶은 검사 항목을 추가하세요. 추천 항목을 터치하거나 직접 추가할 수 있습니다.
+                    </div>
+                    <div>
+                        <strong class="text-gray-800 text-[13px]">2. 새로운 수치 기록하기</strong><br>
+                        '기록' 탭에서 검사받은 날짜를 선택하고, 빈칸에 수치를 입력한 뒤 <span class="font-semibold text-gray-900">'저장'</span> 버튼을 누르세요. / 단위의 경우 병원마다 상이할 수 있습니다.
+                    </div>
+                    <div class="bg-blue-50/50 p-2.5 rounded-lg border border-blue-100/50">
+                        <strong class="text-blue-800 text-[13px]">3. 기존 기록 수정하기</strong><br>
+                        날짜 선택 ➜ <span class="font-semibold text-blue-700">'불러오기'</span> 클릭 ➜ 수치 수정 ➜ <span class="font-semibold text-blue-700">'저장'</span>를 누르면 정상적으로 덮어쓰기 수정이 완료됩니다.
+                    </div>
+                    <div class="bg-red-50/50 p-2.5 rounded-lg border border-red-100/50">
+                        <strong class="text-red-800 text-[13px]">4. 기존 기록 삭제하기</strong><br>
+                        날짜 선택 ➜ <span class="font-semibold text-red-700">'삭제'</span> 클릭 ➜ 확인을 누르면 그 날짜의 기록이 바로 삭제됩니다.
+                    </div>
+                    <div>
+                        <strong class="text-gray-800 text-[13px]">5. 그래프로 추이 보기</strong><br>
+                        '그래프' 탭에서 원하는 항목과 기간을 선택해 추이를 한눈에 확인하세요.
+                    </div>
+                    <div class="bg-amber-50/70 p-2.5 rounded-lg border border-amber-100/70">
+                        <strong class="text-amber-800 text-[13px]">6. 주기적으로 백업하기</strong><br>
+                        이 앱은 서버 기반 앱이 아니므로 기록을 주기적으로 백업해두는 것이 꼭 필요합니다. 설정 탭의 <span class="font-semibold text-amber-800">'데이터 백업'</span> 버튼을 눌러 백업 파일을 안전한 곳에 보관해주세요.
+                    </div>
+                </div>
+                <div data-lang="en" class="text-[12px] text-gray-600 mt-4 leading-relaxed space-y-3 border-t border-gray-100 pt-4">
+                    <div>
+                        <strong class="text-gray-800 text-[13px]">1. Set up your items</strong><br>
+                        In the Items tab, add the tests you want to track. Tap a suggested item or add your own.
+                    </div>
+                    <div>
+                        <strong class="text-gray-800 text-[13px]">2. Record new values</strong><br>
+                        In the Record tab, pick the test date, type in your values and tap <span class="font-semibold text-gray-900">Save</span>. Units can differ between labs.
+                    </div>
+                    <div class="bg-blue-50/50 p-2.5 rounded-lg border border-blue-100/50">
+                        <strong class="text-blue-800 text-[13px]">3. Edit a past record</strong><br>
+                        Pick the date ➜ tap <span class="font-semibold text-blue-700">Load</span> ➜ change the values ➜ tap <span class="font-semibold text-blue-700">Save</span> to overwrite it.
+                    </div>
+                    <div class="bg-red-50/50 p-2.5 rounded-lg border border-red-100/50">
+                        <strong class="text-red-800 text-[13px]">4. Delete a past record</strong><br>
+                        Pick the date ➜ tap <span class="font-semibold text-red-700">Delete</span> and confirm. The record is removed right away.
+                    </div>
+                    <div>
+                        <strong class="text-gray-800 text-[13px]">5. See the trend</strong><br>
+                        In the Chart tab, choose an item and a period to see how it has changed.
+                    </div>
+                    <div class="bg-amber-50/70 p-2.5 rounded-lg border border-amber-100/70">
+                        <strong class="text-amber-800 text-[13px]">6. Back up regularly</strong><br>
+                        This app has no server, so regular backups matter. Tap <span class="font-semibold text-amber-800">Back up</span> in Settings and keep the file somewhere safe.
+                    </div>
+                </div>
+            </details>
+
+            <!-- 3. 개발자의 편지 (아코디언) -->
+            <details class="group bg-gradient-to-br from-blue-50 to-indigo-50 p-5 rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.03)] border border-blue-100/50">
+                <summary class="flex justify-between items-center font-bold text-blue-900 text-sm cursor-pointer list-none">
+                    <div class="flex items-center gap-2">
+                        <span class="emoji-icon">💌</span> <span data-i18n="letter.title">개발자의 편지</span>
+                    </div>
+                    <span class="transition group-open:rotate-180 text-blue-400">
+                        <svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="20"><path d="M6 9l6 6 6-6"></path></svg>
+                    </span>
+                </summary>
+                <div data-lang="ko" class="text-xs text-blue-800/80 mt-4 leading-relaxed space-y-3 tracking-wide border-t border-blue-200/50 pt-4">
+                    <p>이 앱을 내려받아 사용하고 계신다면, 아마도 본인이나 소중한 가족의 건강을 위해 하루하루 세심히 마음을 쓰고 계신 분이 아닐까 짐작해봅니다.</p>
+                    <p>누구신지는 알 수 없지만, 화면 너머 이곳에서 저는 늘 당신을 응원하고 있습니다.</p>
+                    <p>숫자 하나하나에 마음이 오르내리는 날도 있겠지만, 그 안에서도 희망의 끈만은 놓지 않으셨으면 합니다. 오늘보다 내일 조금 더 나아지길, 그렇게 매일 작은 용기를 쌓아가시길 바랍니다.</p>
+                    <p class="font-bold text-blue-900 mt-2 text-[13px]">부디 건강 되찾으시길 진심으로 기도합니다.</p>
+
+                    <p class="font-bold text-blue-900 mt-2 text-[13px]">당신의 하루를 응원합니다. 🍀</p>
+
+                    <p>문의 : jeongtaeyop@naver.com</p>
+                </div>
+                <div data-lang="en" class="text-xs text-blue-800/80 mt-4 leading-relaxed space-y-3 tracking-wide border-t border-blue-200/50 pt-4">
+                    <p>If you are using this app, I imagine you are someone who is carefully looking after your own health, or the health of someone dear to you, one day at a time.</p>
+                    <p>I don't know who you are, but from the other side of this screen I am always rooting for you.</p>
+                    <p>There will be days when your heart rises and falls with every number. Even then, I hope you never let go of hope. May tomorrow be a little better than today, and may you gather a little more courage each day.</p>
+                    <p class="font-bold text-blue-900 mt-2 text-[13px]">I sincerely pray that you regain your health.</p>
+
+                    <p class="font-bold text-blue-900 mt-2 text-[13px]">Cheering you on, today and every day. 🍀</p>
+
+                    <p>Contact: jeongtaeyop@naver.com</p>
+                </div>
+            </details>
+
+            <footer class="text-center text-[11px] text-gray-400 leading-relaxed px-2 pb-2 space-y-1.5">
+                <p class="font-bold text-gray-500" data-i18n="splash.msg">당신의 회복을 응원합니다</p>
+                <p data-i18n="footer.disclaimer">이 앱은 기록·확인용 도구이며 의학적 진단이나 조언을 제공하지 않습니다.</p>
+                <p>
+                    <a href="../" data-href-ko="../" data-href-en="../en/" class="underline" data-i18n="footer.about">서비스 소개</a>
+                    <span class="mx-1">·</span>
+                    <a href="../privacy.html" data-href-ko="../privacy.html" data-href-en="../en/privacy.html" class="underline" data-i18n="footer.privacy">개인정보처리방침</a>
+                </p>
+            </footer>
+        </div>
+
+    </main>
+
+    <nav class="bg-white/95 backdrop-blur-lg border-t border-gray-200/60 flex-none pb-safe w-full z-20 shadow-[0_-2px_10px_rgba(0,0,0,0.02)]">
+        <div class="flex justify-around items-center h-[60px] px-2 pt-1">
+            <button onclick="switchTab(1)" id="btnTab1" class="flex flex-col items-center justify-center w-full h-full text-gray-900 transition">
+                <svg class="w-[22px] h-[22px] mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                <span class="text-[10px] font-semibold" data-i18n="nav.1">기록</span>
+            </button>
+            <button onclick="switchTab(2)" id="btnTab2" class="flex flex-col items-center justify-center w-full h-full text-gray-400 transition">
+                <svg class="w-[22px] h-[22px] mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
+                <span class="text-[10px] font-medium" data-i18n="nav.2">그래프</span>
+            </button>
+            <button onclick="switchTab(3)" id="btnTab3" class="flex flex-col items-center justify-center w-full h-full text-gray-400 transition">
+                <svg class="w-[22px] h-[22px] mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                <span class="text-[10px] font-medium" data-i18n="nav.3">항목관리</span>
+            </button>
+            <button onclick="switchTab(4)" id="btnTab4" class="flex flex-col items-center justify-center w-full h-full text-gray-400 transition">
+                <svg class="w-[22px] h-[22px] mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                <span class="text-[10px] font-medium" data-i18n="nav.4">설정</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- 앱 설치 안내 화면 -->
+    <div id="installScreen" class="screen" hidden>
+        <div class="screen-header">
+            <button type="button" class="screen-back" onclick="closeInstallScreen()" data-i18n-aria="back" aria-label="뒤로">
+                <svg fill="none" height="22" width="22" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"></path></svg>
+            </button>
+            <h2 data-i18n="install.title">앱 설치</h2>
+        </div>
+        <div class="screen-body">
+            <p class="screen-lead" data-i18n="install.pick">사용하는 기기를 선택하세요.</p>
+            <div class="device-cards">
+                <button type="button" class="device-card" id="deviceCard_ios" onclick="selectInstallDevice('ios')">
+                    <span class="device-emoji">🍎</span>
+                    <b data-i18n="install.iphone">아이폰 · 아이패드</b>
+                    <small>Safari</small>
+                </button>
+                <button type="button" class="device-card" id="deviceCard_android" onclick="selectInstallDevice('android')">
+                    <span class="device-emoji">🤖</span>
+                    <b data-i18n="install.android">갤럭시 · 안드로이드</b>
+                    <small>Chrome · Samsung Internet</small>
+                </button>
+            </div>
+
+            <div class="install-panel" id="installPanel_ios">
+                <ol class="install-steps">
+                    <li><span data-i18n="install.ios.1"></span>
+                        <div class="mock"><div class="mock-bar"><span class="mock-app">Safari</span><span class="mock-url">blood-log</span></div></div>
+                        <div class="open-in" id="openIn_ios">
+                            <button type="button" class="open-btn" onclick="openInBrowser('safari')" data-i18n="install.openSafari"></button>
+                            <button type="button" class="open-btn open-btn-sub" onclick="copyAppLink()" data-i18n="install.copyLink"></button>
+                        </div>
+                        <p class="open-here" id="openHere_ios" data-i18n="install.alreadyHere" hidden></p>
+                    </li>
+                    <li><span data-i18n="install.ios.2"></span>
+                        <div class="mock"><div class="mock-toolbar"><span>‹</span><span>›</span><span class="mock-hit"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M8 7l4-4 4 4M6 11H5a1 1 0 00-1 1v8a1 1 0 001 1h14a1 1 0 001-1v-8a1 1 0 00-1-1h-1"/></svg></span><span>▢</span><span>⧉</span></div></div>
+                    </li>
+                    <li><span data-i18n="install.ios.3"></span>
+                        <div class="mock"><div class="mock-list">
+                            <div data-i18n="mock.copy"></div>
+                            <div class="mock-hit"><span data-i18n="mock.a2hs"></span><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8v8M8 12h8"/></svg></div>
+                            <div data-i18n="mock.bookmark"></div>
+                        </div></div>
+                    </li>
+                    <li><span data-i18n="install.ios.4"></span>
+                        <div class="mock"><div class="mock-topbar"><span data-i18n="mock.cancel"></span><b data-i18n="mock.a2hs"></b><span class="mock-hit" data-i18n="mock.add"></span></div></div>
+                    </li>
+                </ol>
+            </div>
+
+            <div class="install-panel" id="installPanel_android">
+                <div id="installNowBox">
+                    <p class="install-note" data-i18n="install.nowDesc"></p>
+                    <button type="button" class="install-now" onclick="installApp()" data-i18n="install.now">바로 설치</button>
+                </div>
+                <div id="installManualBox">
+                    <p class="install-note" data-i18n="install.manual"></p>
+                    <ol class="install-steps">
+                        <li><span data-i18n="install.and.1"></span>
+                            <div class="mock"><div class="mock-bar"><span class="mock-app">Chrome</span><span class="mock-url">blood-log</span><span class="mock-dots">⋮</span></div></div>
+                            <div class="open-in" id="openIn_android">
+                                <button type="button" class="open-btn" onclick="openInBrowser('chrome')" data-i18n="install.openChrome"></button>
+                                <button type="button" class="open-btn" onclick="openInBrowser('samsung')" data-i18n="install.openSamsung"></button>
+                            </div>
+                            <p class="open-here" id="openHere_android" data-i18n="install.alreadyHere" hidden></p>
+                        </li>
+                        <li><span data-i18n="install.and.2"></span>
+                            <div class="mock"><div class="mock-bar"><span class="mock-url">blood-log</span><span class="mock-dots mock-hit">⋮</span></div></div>
+                        </li>
+                        <li><span data-i18n="install.and.3"></span>
+                            <div class="mock"><div class="mock-list">
+                                <div data-i18n="mock.newtab"></div>
+                                <div class="mock-hit"><span data-i18n="mock.installApp"></span><span>⤓</span></div>
+                                <div data-i18n="mock.settings"></div>
+                            </div></div>
+                        </li>
+                        <li><span data-i18n="install.and.4"></span>
+                            <div class="mock"><div class="mock-dialog">
+                                <div class="mock-dialog-title"><img src="icons/icon-192.png" alt="" width="28" height="28"><b data-i18n="appName"></b></div>
+                                <div class="mock-dialog-actions"><span data-i18n="mock.cancel"></span><span class="mock-hit" data-i18n="mock.install"></span></div>
+                            </div></div>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+            <p class="install-note" data-i18n="install.mockNote"></p>
+            <p class="install-note" data-i18n="install.done"></p>
+        </div>
+    </div>
+
+    <!-- 알림 · 확인 창 -->
+    <div id="dialogOverlay" class="dialog-overlay" hidden>
+        <div class="dialog-box" role="alertdialog" aria-modal="true" aria-describedby="dialogMessage">
+            <p id="dialogMessage" class="dialog-message"></p>
+            <div class="dialog-actions">
+                <button type="button" id="dialogCancel" class="dialog-btn dialog-btn-cancel"></button>
+                <button type="button" id="dialogOk" class="dialog-btn dialog-btn-ok"></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="vendor/chart.umd.min.js"></script>
+    <script src="vendor/chartjs-plugin-annotation.min.js"></script>
+    <script src="i18n.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

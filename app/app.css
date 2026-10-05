@@ -1,0 +1,279 @@
+/* ==================== 색상 (주간 / 야간) ====================
+   앱에서 쓰는 색은 모두 여기 변수에서 나온다. 야간모드는 아래 body.dark-mode 에서 값만 바꾼다. */
+:root {
+    --bg: #f2f2f7;            /* 화면 바탕 */
+    --surface: #ffffff;       /* 카드 */
+    --surface-2: #f9fafb;     /* 카드 안의 옅은 상자, 입력창 */
+    --surface-3: #f3f4f6;     /* 보조 버튼 */
+    --text: #1f2937;
+    --text-2: #4b5563;
+    --muted: #6b7280;
+    --faint: #9ca3af;
+    --line: #e5e7eb;
+    --primary: #111827;       /* 주요 버튼 */
+    --primary-text: #ffffff;
+    --hit-bg: #fee2e2;        /* 설치 그림에서 눌러야 할 곳 */
+    --hit: #dc2626;
+    --overlay: rgba(17,24,39,0.45);
+    --header: rgba(255,255,255,0.9);
+    --card-shadow: 0 2px 10px rgba(0,0,0,0.03);
+}
+body.dark-mode {
+    --bg: #111827;
+    --surface: #1f2937;
+    --surface-2: #111827;
+    --surface-3: #374151;
+    --text: #f9fafb;
+    --text-2: #e5e7eb;
+    --muted: #cbd5e1;
+    --faint: #9ca3af;
+    --line: #374151;
+    --primary: #e5e7eb;
+    --primary-text: #111827;
+    --hit-bg: rgba(239,68,68,0.2);
+    --hit: #fca5a5;
+    --overlay: rgba(0,0,0,0.6);
+    --header: rgba(31,41,55,0.92);
+    --card-shadow: none;
+}
+
+/* ==================== 기본 ==================== */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Segoe UI', Roboto, 'Noto Sans KR', 'Malgun Gothic', system-ui, sans-serif;
+}
+[hidden] { display: none !important; }
+.pt-safe { padding-top: calc(env(safe-area-inset-top) + 14px); }
+.pb-safe { padding-bottom: calc(env(safe-area-inset-bottom) + 8px); }
+.tab-content { display: none; animation: fadeIn 0.25s ease-out; }
+.tab-content.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+::-webkit-scrollbar { display: none; }
+input:focus, select:focus { outline: none; box-shadow: none; }
+:focus-visible { outline: 2px solid var(--faint); outline-offset: 2px; }
+
+/* 아코디언(details) 기본 화살표 숨김 */
+details > summary { list-style: none; }
+details > summary::-webkit-details-marker { display: none; }
+
+/* 언어별 본문 블록 (사용 방법, 개발자의 편지) */
+html[lang="ko"] [data-lang="en"],
+html[lang="en"] [data-lang="ko"] { display: none; }
+
+/* 넓은 화면(PC)에서는 내용 폭을 휴대폰 화면처럼 제한 */
+@media (min-width: 640px) {
+    main > .tab-content { max-width: 560px; margin-left: auto; margin-right: auto; }
+}
+
+/* 제목 앞 색 배지 */
+.title-row { display: flex; align-items: center; gap: 8px; }
+.title-row-gap { margin-bottom: 6px; }
+.badge { flex: none; width: 28px; height: 28px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; }
+.badge svg { width: 16px; height: 16px; }
+.badge-blue { background: #dbeafe; color: #2563eb; }
+.badge-green { background: #d1fae5; color: #047857; }
+.badge-amber { background: #fef3c7; color: #b45309; }
+.badge-purple { background: #ede9fe; color: #6d28d9; }
+body.dark-mode .badge-blue { background: rgba(59,130,246,0.22); color: #93c5fd; }
+body.dark-mode .badge-green { background: rgba(16,185,129,0.22); color: #6ee7b7; }
+body.dark-mode .badge-amber { background: rgba(245,158,11,0.22); color: #fcd34d; }
+body.dark-mode .badge-purple { background: rgba(139,92,246,0.25); color: #c4b5fd; }
+.emoji-icon { font-size: 20px; line-height: 1; }
+.device-emoji { font-size: 30px; line-height: 1.2; }
+
+/* 선 아이콘 */
+.icon { width: 18px; height: 18px; flex: none; }
+.icon-lg { display: block; width: 34px; height: 34px; margin: 0 auto 10px; color: var(--faint); }
+.local-note { display: flex; align-items: flex-start; gap: 6px; }
+.local-note .icon { width: 14px; height: 14px; margin-top: 2px; }
+
+/* ==================== 야간모드: Tailwind 색상 클래스 대응표 ====================
+   tailwind.css 에 들어 있는 색상 클래스를 빠짐없이 적어 둔다. 새 색상 클래스를 쓰면 여기에도 추가한다. */
+body.dark-mode,
+body.dark-mode.bg-\[\#f2f2f7\] { background-color: var(--bg); color: var(--text); }
+body.dark-mode .bg-white,
+body.dark-mode .bg-white\/80,
+body.dark-mode .bg-white\/90,
+body.dark-mode .bg-white\/95,
+body.dark-mode .bg-gradient-to-br { background-color: var(--surface); background-image: none; }
+body.dark-mode .bg-gray-50,
+body.dark-mode .bg-gray-50\/50,
+body.dark-mode .bg-gray-100,
+body.dark-mode .bg-\[\#f8f8fb\] { background-color: var(--surface-2); }
+body.dark-mode .bg-blue-50, body.dark-mode .bg-blue-50\/50 { background-color: rgba(59,130,246,0.16); }
+body.dark-mode .bg-red-50, body.dark-mode .bg-red-50\/50 { background-color: rgba(239,68,68,0.16); }
+body.dark-mode .bg-amber-50\/70 { background-color: rgba(245,158,11,0.16); }
+body.dark-mode .bg-emerald-100 { background-color: rgba(16,185,129,0.3); }
+body.dark-mode .bg-gray-900 { background-color: var(--primary); }
+body.dark-mode .bg-gray-900.text-white { color: var(--primary-text); }
+body.dark-mode button.bg-gray-100 { background-color: var(--surface-3); }
+body.dark-mode button.bg-white { background-color: #4b5563; color: var(--text); }
+
+body.dark-mode .border-gray-100,
+body.dark-mode .border-gray-100\/50,
+body.dark-mode .border-gray-200,
+body.dark-mode .border-gray-200\/60 { border-color: var(--line); }
+body.dark-mode .border-blue-100,
+body.dark-mode .border-blue-100\/50,
+body.dark-mode .border-blue-200\/50 { border-color: rgba(96,165,250,0.35); }
+body.dark-mode .border-blue-300 { border-color: #3b82f6; }
+body.dark-mode .border-red-100\/50, body.dark-mode .border-red-200 { border-color: rgba(248,113,113,0.35); }
+body.dark-mode .border-amber-100\/70 { border-color: rgba(251,191,36,0.35); }
+body.dark-mode .border-emerald-200 { border-color: rgba(16,185,129,0.6); }
+
+body.dark-mode .text-gray-900,
+body.dark-mode .text-gray-800,
+body.dark-mode .text-gray-700,
+body.dark-mode .text-blue-900 { color: var(--text); }
+body.dark-mode .text-gray-600,
+body.dark-mode .text-gray-500,
+body.dark-mode .text-gray-400,
+body.dark-mode .text-blue-800\/80 { color: var(--muted); }
+body.dark-mode .text-gray-300 { color: var(--faint); }
+body.dark-mode .text-blue-800,
+body.dark-mode .text-blue-700,
+body.dark-mode .text-blue-600 { color: #93c5fd; }
+body.dark-mode .text-blue-400 { color: #60a5fa; }
+body.dark-mode .text-red-800,
+body.dark-mode .text-red-700,
+body.dark-mode .text-red-600 { color: #fca5a5; }
+body.dark-mode .text-amber-800 { color: #fcd34d; }
+body.dark-mode .placeholder-gray-300::placeholder { color: #6b7280; }
+
+body.dark-mode section, body.dark-mode details, body.dark-mode nav { box-shadow: none; }
+body.dark-mode input, body.dark-mode select { background-color: var(--surface-2); color: var(--text); border-color: #4b5563; color-scheme: dark; }
+/* 야간모드에서 날짜 칸의 달력 아이콘을 흰색으로 */
+body.dark-mode input[type="date"]::-webkit-calendar-picker-indicator { filter: brightness(0) invert(1); opacity: 0.9; }
+body.dark-mode input::placeholder { color: #6b7280; }
+body.dark-mode input.bg-transparent { background-color: transparent; }
+body.dark-mode .theme-toggle-track { background-color: #0f172a; border-color: #475569; }
+body.dark-mode .theme-toggle-thumb { transform: translateX(28px); background-color: #f8fafc; }
+
+/* ==================== 지난 기록 목록 ==================== */
+.history-list { display: flex; flex-direction: column; gap: 6px; }
+.history-row {
+    display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+    background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 11px 12px;
+}
+.history-row:active { transform: scale(0.99); }
+.history-row.selected { border-color: var(--primary); }
+.history-date { flex: none; font-size: 13px; font-weight: 700; color: var(--text); }
+.history-meta { flex: 1; min-width: 0; font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.history-row svg { flex: none; width: 16px; height: 16px; color: var(--faint); }
+.history-hint { margin: 0 0 10px; font-size: 11px; color: var(--muted); }
+.history-more.history-less { background: transparent; color: var(--muted); }
+.history-more { width: 100%; margin-top: 8px; padding: 10px 0; font-size: 12px; font-weight: 700; color: var(--text-2); background: var(--surface-3); border-radius: 12px; }
+
+/* ==================== 추천 항목 (분류별 접기) ==================== */
+.rec-cat { border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); }
+.rec-cat > summary { display: flex; align-items: center; gap: 8px; padding: 11px 12px; cursor: pointer; font-size: 12px; font-weight: 700; color: var(--text); }
+.rec-cat > summary .rec-name { flex: 1; }
+.rec-count { font-size: 11px; font-weight: 600; color: var(--faint); }
+.rec-cat > summary svg { width: 16px; height: 16px; color: var(--faint); transition: transform 0.15s; }
+.rec-cat[open] > summary svg { transform: rotate(180deg); }
+.rec-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 12px 12px; }
+
+/* 증감 표시: 좋고 나쁨을 뜻하지 않도록 무채색 */
+.trend-chip { display: flex; align-items: center; margin-left: 8px; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; background: var(--surface-3); color: var(--muted); }
+
+/* ==================== 앱 실행 화면 ==================== */
+.splash {
+    position: fixed; inset: 0; z-index: 100; background: var(--bg);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    transition: opacity 0.35s ease; padding: 24px; text-align: center;
+}
+.splash-main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; animation: fadeIn 0.5s ease-out; }
+.splash img { width: 96px; height: 96px; border-radius: 22px; box-shadow: 0 6px 24px rgba(0,0,0,0.08); margin-bottom: 8px; }
+.splash-name { font-size: 13px; font-weight: 600; color: var(--faint); letter-spacing: 0.02em; }
+.splash p { margin: 6px 0 0; font-size: 21px; font-weight: 700; color: var(--text); letter-spacing: -0.01em; min-height: 30px; }
+.splash small { font-size: 13px; color: var(--muted); min-height: 20px; }
+.splash-foot { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--faint); padding-bottom: calc(env(safe-area-inset-bottom) + 12px); min-height: 28px; }
+.splash-foot .icon { width: 12px; height: 12px; }
+.splash-hide { opacity: 0; pointer-events: none; }
+
+/* ==================== 알림 · 확인 창 ==================== */
+.dialog-overlay {
+    position: fixed; inset: 0; z-index: 90; background: var(--overlay);
+    display: flex; align-items: center; justify-content: center; padding: 24px;
+}
+.dialog-box {
+    width: 100%; max-width: 320px; background: var(--surface); border-radius: 18px; padding: 22px 20px 16px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.18); animation: fadeIn 0.18s ease-out;
+}
+.dialog-message { margin: 0 0 18px; font-size: 14px; line-height: 1.6; color: var(--text); white-space: pre-line; word-break: keep-all; }
+.dialog-actions { display: flex; gap: 8px; }
+.dialog-btn { flex: 1; padding: 12px 0; border-radius: 12px; font-size: 14px; font-weight: 700; }
+.dialog-btn-ok { background: var(--primary); color: var(--primary-text); }
+.dialog-btn-cancel { background: var(--surface-3); color: var(--text-2); }
+
+/* ==================== 앱 설치 안내 화면 ==================== */
+.screen { position: fixed; inset: 0; z-index: 50; background: var(--bg); overflow-y: auto; animation: fadeIn 0.2s ease-out; }
+.screen-header {
+    position: sticky; top: 0; z-index: 1; display: flex; align-items: center; justify-content: center;
+    background: var(--header); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line); padding: calc(env(safe-area-inset-top) + 14px) 16px 16px;
+}
+.screen-header h2 { margin: 0; font-size: 17px; font-weight: 700; color: var(--text); }
+.screen-back {
+    position: absolute; left: 8px; bottom: 8px; width: 40px; height: 40px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; color: var(--text);
+}
+.screen-back:active { background: var(--surface-3); }
+.screen-body { padding: 20px 16px calc(env(safe-area-inset-bottom) + 32px); max-width: 560px; margin: 0 auto; }
+.screen-lead { margin: 0 0 12px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.device-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.device-card {
+    display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 18px 8px;
+    background: var(--surface); border: 2px solid transparent; border-radius: 18px; box-shadow: var(--card-shadow);
+    color: var(--text); transition: border-color 0.15s, transform 0.1s;
+}
+.device-card:active { transform: scale(0.98); }
+.device-card.selected { border-color: var(--primary); }
+.device-card svg { width: 30px; height: 30px; margin-bottom: 4px; color: var(--text-2); }
+.device-card b { font-size: 13px; }
+.device-card small { font-size: 11px; color: var(--faint); }
+.install-panel { background: var(--surface); border-radius: 18px; padding: 20px; box-shadow: var(--card-shadow); margin-bottom: 14px; }
+.install-steps { margin: 0; padding: 0; list-style: none; counter-reset: step; }
+.install-steps li {
+    counter-increment: step; position: relative; padding-left: 36px; margin-bottom: 18px;
+    font-size: 13px; line-height: 1.6; color: var(--text-2); word-break: keep-all;
+}
+.install-steps li:last-child { margin-bottom: 0; }
+.install-steps li::before {
+    content: counter(step); position: absolute; left: 0; top: 0; width: 24px; height: 24px; border-radius: 50%;
+    background: var(--primary); color: var(--primary-text); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+}
+.install-note { margin: 0 0 14px; font-size: 12px; line-height: 1.6; color: var(--muted); word-break: keep-all; }
+.screen-body > .install-note { text-align: center; padding: 0 8px; }
+.install-now { width: 100%; background: var(--primary); color: var(--primary-text); font-size: 15px; font-weight: 700; padding: 15px 0; border-radius: 14px; }
+.install-now:active { transform: scale(0.98); }
+
+/* 해당 브라우저로 바로 여는 버튼 */
+.open-in { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.open-btn { flex: 1 1 130px; background: var(--primary); color: var(--primary-text); font-size: 13px; font-weight: 700; padding: 12px 8px; border-radius: 12px; }
+.open-btn-sub { background: var(--surface-3); color: var(--text-2); }
+.open-btn:active { transform: scale(0.98); }
+.open-here { margin: 10px 0 0; font-size: 12px; font-weight: 700; color: #059669; }
+body.dark-mode .open-here { color: #6ee7b7; }
+
+/* 설치 순서 예시 그림 */
+.mock { margin-top: 8px; background: var(--surface-3); border: 1px solid var(--line); border-radius: 12px; padding: 10px; font-size: 12px; color: var(--muted); }
+body.dark-mode .mock { background: var(--surface-2); }
+.mock-bar, .mock-toolbar, .mock-topbar { display: flex; align-items: center; gap: 8px; }
+.mock-app { flex: none; font-weight: 700; color: var(--text-2); }
+.mock-url { flex: 1; background: var(--surface); border-radius: 999px; padding: 5px 12px; color: var(--faint); }
+.mock-dots { flex: none; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; border-radius: 8px; }
+.mock-toolbar { justify-content: space-around; font-size: 18px; }
+.mock-toolbar span { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border-radius: 10px; }
+.mock-topbar { justify-content: space-between; }
+.mock-topbar b { color: var(--text-2); }
+.mock-topbar span { padding: 4px 10px; border-radius: 8px; }
+.mock-list { background: var(--surface); border-radius: 10px; overflow: hidden; }
+.mock-list > div { display: flex; align-items: center; justify-content: space-between; padding: 9px 12px; border-bottom: 1px solid var(--line); }
+.mock-list > div:last-child { border-bottom: none; }
+.mock-dialog { background: var(--surface); border-radius: 12px; padding: 12px; }
+.mock-dialog-title { display: flex; align-items: center; gap: 8px; color: var(--text-2); margin-bottom: 10px; }
+.mock-dialog-title img { border-radius: 7px; }
+.mock-dialog-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.mock-dialog-actions span { padding: 5px 12px; border-radius: 8px; }
+.mock .mock-hit { background: var(--hit-bg); color: var(--hit); font-weight: 700; box-shadow: 0 0 0 2px #ef4444; }
+.mock-list > .mock-hit { box-shadow: inset 0 0 0 2px #ef4444; }
